@@ -1,41 +1,95 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('registrationForm');
-    const messageDiv = document.getElementById('formMessage');
+document.addEventListener('DOMContentLoaded',()=>{
+  // ===== Audio logic (click-to-start, mute toggle) =====
+  const audio=document.getElementById('backgroundAudio');
+  const audioControl=document.getElementById('audioControl');
+  const scrollButton=document.getElementById('scrollToForm');
+  const quickRsvp=document.getElementById('quickRsvp');
 
-    form.addEventListener('submit', async (event) => {
-        event.preventDefault();
+  let started=false;      // first click started
+  let userMuted=false;    // user explicitly muted
+  function syncIcon(){ audioControl.textContent = (audio.muted || audio.paused) ? '🔇' : '🔈'; }
+  async function playLoud(){ try{ audio.muted=false; audio.volume=1.0; if(audio.paused){ await audio.play(); } started=true; }catch(_){} syncIcon(); }
+  function firstClickPlay(){ if(!started && !userMuted){ playLoud(); } }
+  document.addEventListener('click', firstClickPlay, {capture:true});
+  document.addEventListener('pointerdown', firstClickPlay, {capture:true});
+  audioControl.addEventListener('click', async ()=>{ if(audio.muted || audio.paused){ userMuted=false; await playLoud(); } else { audio.muted=true; userMuted=true; syncIcon(); } });
+  function scrollToForm(){ document.getElementById('registration-section').scrollIntoView({behavior:'smooth'}); }
+  if(scrollButton) scrollButton.addEventListener('click', scrollToForm);
+  if(quickRsvp)   quickRsvp.addEventListener('click',   scrollToForm);
 
-        // Collect form data
-        const formData = {
-            name: form.name.value,
-            graduationYear: form.graduationYear.value,
-            phone: form.phone.value,
-            email: form.email.value,
-            attending: form.attending.value
-        };
+  // ===== Countdown (to 18/10/2025 in Asia/Ho_Chi_Minh) =====
+  const target = new Date('2025-10-18T00:00:00+07:00');
+  const elDays = document.getElementById('cd-days');
+  const elHours= document.getElementById('cd-hours');
+  const elMins = document.getElementById('cd-mins');
+  const elSecs = document.getElementById('cd-secs');
+  function updateCountdown(){
+    const now = new Date();
+    let diff = Math.max(0, target - now);
+    const sec = Math.floor(diff/1000);
+    const d = Math.floor(sec/86400);
+    const h = Math.floor((sec%86400)/3600);
+    const m = Math.floor((sec%3600)/60);
+    const s = sec%60;
+    if(elDays){ elDays.textContent = String(d).padStart(2,'0'); }
+    if(elHours){ elHours.textContent = String(h).padStart(2,'0'); }
+    if(elMins){ elMins.textContent  = String(m).padStart(2,'0'); }
+    if(elSecs){ elSecs.textContent  = String(s).padStart(2,'0'); }
+  }
+  updateCountdown(); setInterval(updateCountdown, 1000);
 
-        try {
-            // Send data to the server
-            const response = await fetch('/submit', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(formData)
-            });
+  // ===== Populate Niên khóa options (1992-1995 ... 2022-2025) =====
+  const gySel = document.getElementById('graduationYear');
+  if(gySel){
+    const start = 1992, end = 2022; // inclusive
+    const frag = document.createDocumentFragment();
+    const ph = document.createElement('option'); ph.value=''; ph.textContent='-- Chọn --'; ph.disabled=true; ph.selected=true; frag.appendChild(ph);
+    for(let s=start; s<=end; s++){ const e = s+3; const opt = document.createElement('option'); opt.value = `${s} - ${e}`; opt.textContent = opt.value; frag.appendChild(opt); }
+    gySel.innerHTML=''; gySel.appendChild(frag);
+  }
 
-            const result = await response.json();
-            if (result.status === 'success') {
-                messageDiv.textContent = 'Thank you for registering! We have received your information.';
-                messageDiv.style.color = 'green';
-                form.reset();
-            } else {
-                messageDiv.textContent = 'There was an issue submitting your form. Please try again later.';
-                messageDiv.style.color = 'red';
-            }
-        } catch (error) {
-            messageDiv.textContent = 'An error occurred. Please try again later.';
-            messageDiv.style.color = 'red';
-        }
-    });
+  // ===== Gallery (Hình ảnh kỷ niệm) =====
+  const GALLERY_BASE = 'images/gallery';
+  const GALLERY_PAGE_COUNT = 5; // chỉnh số trang thật sự ở đây
+  const AUTO_INTERVAL_MS = 6000; const IMAGES_PER_PAGE = 4;
+  const grid = document.getElementById('galleryGrid');
+  const dotsWrap = document.getElementById('galDots');
+  const btnPrev = document.getElementById('galPrev');
+  const btnNext = document.getElementById('galNext');
+  const galleryFrame = document.querySelector('.gallery-frame');
+  let pages = new Array(GALLERY_PAGE_COUNT); let current = 0; let timer = null;
+  function fileCaption(path){ const name = path.split('/').pop().split('?')[0]; return name.replace(/\.(jpg|jpeg|png|webp)$/i,'').replace(/[._-]+/g,' '); }
+  function createCard(src){ const card=document.createElement('div'); card.className='gallery-card'; const wrap=document.createElement('div'); wrap.className='imgwrap'; const img=document.createElement('img'); img.loading='lazy'; img.decoding='async'; img.src=src; img.alt=fileCaption(src); wrap.appendChild(img); card.appendChild(wrap); const cap=document.createElement('div'); cap.className='gallery-caption'; cap.textContent=fileCaption(src); card.appendChild(cap); card.addEventListener('click',()=>openLightbox(src)); return card; }
+  function renderPage(index){ if(index<0) return; current = (index+GALLERY_PAGE_COUNT)%GALLERY_PAGE_COUNT; const imgs = ensurePage(current); grid.innerHTML=''; imgs.forEach(src=>grid.appendChild(createCard(src))); updateDots(); }
+  function updateDots(){ dotsWrap.innerHTML=''; for(let i=0;i<GALLERY_PAGE_COUNT;i++){ const dot=document.createElement('button'); dot.className='gal-dot'+(i===current?' active':''); dot.setAttribute('aria-label',`Trang ${i+1}`); dot.addEventListener('click',()=>{ stopAuto(); renderPage(i); startAuto(); }); dotsWrap.appendChild(dot);} }
+  function ensurePage(idx){ if(pages[idx]) return pages[idx]; const folder=`${GALLERY_BASE}/page${idx+1}`; const imgs=[]; for(let n=1;n<=IMAGES_PER_PAGE;n++){ imgs.push(`${folder}/${n}.jpg`); } pages[idx]=imgs; const nextFirst = `${GALLERY_BASE}/page${((idx+1)%GALLERY_PAGE_COUNT)+1}/1.jpg`; const pre=new Image(); pre.loading='eager'; pre.src=nextFirst; return imgs; }
+  function nextPage(){ renderPage(current+1); } function prevPage(){ renderPage(current-1); }
+  function startAuto(){ stopAuto(); timer=setInterval(nextPage,AUTO_INTERVAL_MS);} function stopAuto(){ if(timer){clearInterval(timer); timer=null;} }
+  btnNext.addEventListener('click',()=>{ stopAuto(); nextPage(); startAuto(); }); btnPrev.addEventListener('click',()=>{ stopAuto(); prevPage(); startAuto(); });
+  galleryFrame.addEventListener('mouseenter',stopAuto); galleryFrame.addEventListener('mouseleave',startAuto);
+  // Lightbox
+  let lightbox=null; function openLightbox(src){ if(!lightbox){ lightbox=document.createElement('div'); lightbox.id='lightbox'; Object.assign(lightbox.style,{position:'fixed',top:0,left:0,width:'100%',height:'100%',background:'rgba(0,0,0,0.85)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:10000}); const img=document.createElement('img'); Object.assign(img.style,{maxWidth:'92%',maxHeight:'92%',boxShadow:'0 10px 30px rgba(0,0,0,.5)',borderRadius:'8px'}); lightbox.appendChild(img); lightbox.addEventListener('click',()=>{ lightbox.style.display='none'; }); document.body.appendChild(lightbox);} lightbox.querySelector('img').src=src; lightbox.style.display='flex'; }
+  for(let i=0;i<GALLERY_PAGE_COUNT;i++){ ensurePage(i); } renderPage(0); updateDots(); startAuto();
+
+  // ===== Form validation & submit =====
+  const form=document.getElementById('registrationForm'); const messageDiv=document.getElementById('formMessage'); const btnSubmit=form.querySelector('button[type="submit"]');
+  function showError(msg){ messageDiv.textContent=msg; messageDiv.style.color='red'; }
+  function showSuccess(msg){ messageDiv.textContent=msg; messageDiv.style.color='green'; }
+  form.addEventListener('submit',async(e)=>{
+    e.preventDefault();
+    // Honeypot
+    const hp=document.getElementById('website'); if(hp && hp.value){ showError('Có lỗi xảy ra.'); return; }
+    // Collect
+    const name=form.name.value.trim(); const session=form.session.value; const phone=form.phone.value.trim(); const email=(form.email.value||'').trim(); const className=form.class.value; const graduationYear=form.graduationYear.value; const message=(form.message.value||'').trim();
+    // Validate
+    const emailOk=/[^\s@]+@[^\s@]+\.[^\s@]+/.test(email); const phoneOk=(/[0-9]{7,15}/).test(phone.replace(/[^0-9]/g,''));
+    if(!name||!session||!phone||!email||!className||!graduationYear){ showError('Vui lòng điền đầy đủ các trường có dấu *'); return; }
+    if(!emailOk){ showError('Email chưa hợp lệ'); return; }
+    if(!phoneOk){ showError('Số điện thoại chưa hợp lệ'); return; }
+    btnSubmit.disabled=true; const oldText=btnSubmit.textContent; btnSubmit.textContent='Đang gửi...';
+    const payload={ name, session, phone, email, className, graduationYear, message };
+    try{ const res=await fetch('/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const json=await res.json(); if(json.status==='success'){ showSuccess('Cảm ơn bạn đã đăng ký! Thông tin đã được gửi.'); form.reset(); } else { showError(json.message||'Đã xảy ra lỗi khi gửi thông tin.'); } }
+    catch(_){ showError('Lỗi kết nối. Vui lòng thử lại sau.'); }
+    finally{ btnSubmit.disabled=false; btnSubmit.textContent=oldText; }
+  });
 });

@@ -1,89 +1,166 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>30th Anniversary Invitation</title>
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lễ kỷ niệm 30 năm THPT Chuyên Tiền Giang</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* inline helpers so asterisk + honeypot work even if CSS not refreshed */
+    .form-group label.required::after{content:" *";color:#d62828}
+    .hp{position:absolute!important;left:-9999px!important;opacity:0!important;height:0!important;width:0!important}
+  </style>
 </head>
 <body>
-    <header class="banner">
-        <h1>Lễ kỷ niệm 30 năm thành lập Trường</h1>
-    </header>
+  <!-- 1) TRANG CHÍNH: Logo + tiêu đề + mốc thời gian + nút RSVP -->
+  <header id="hero" class="hero">
+    <div class="hero-overlay">
+      <img class="school-logo" src="images/logo.jpg" alt="Logo Trường THPT Chuyên Tiền Giang"/>
+      <div class="hero-lines">
+        <p class="hero-sub">Lễ kỷ niệm 30 năm ngày thành lập</p>
+        <h1 class="hero-title">Trường THPT Chuyên Tiền Giang</h1>
+        <p class="hero-date">(20/10/1995 - 20/10/2025)</p>
+      </div>
+      <button id="scrollToForm" class="scroll-button">Xác nhận tham dự</button>
+    </div>
 
-    <main>
-        <section class="intro">
-            <h2>Introduction</h2>
-            <p>We cordially invite all alumni, teachers, and staff to celebrate the 30th anniversary of our school. This milestone marks three decades of dedication to education and community. Join us for a memorable event that reflects on our past, celebrates our present, and looks toward the future.</p>
-        </section>
+    <!-- Nhạc nền (phát sau lần click đầu theo chính sách trình duyệt) -->
+    <audio id="backgroundAudio" src="audio/background.mp3" loop playsinline preload="auto"></audio>
+  </header>
 
-        <section class="details">
-            <h2>Event Details</h2>
-            <ul>
-                <li><strong>Date:</strong> December 15, 2025</li>
-                <li><strong>Time:</strong> 18:00 – 21:00</li>
-                <li><strong>Location:</strong> Main Hall of the School</li>
-                <li><strong>Program:</strong> Opening ceremony, speech from the principal, performances, dinner, and networking.</li>
-            </ul>
-        </section>
+  <main class="container">
+    <!-- PHÂN CÁCH RÕ RÀNG GIỮA CÁC MỤC -->
+    <div class="section-divider"><span>Lời mời</span></div>
+    <section id="invitation" class="invitation-section">
+      <figure class="invitation-image">
+        <img src="images/loi-moi.jpg" alt="Lời mời - bản trình bày gốc"/>
+        <figcaption class="sr-only">Thư mời từ Hiệu trưởng (hiển thị theo đúng thiết kế ảnh cung cấp).</figcaption>
+      </figure>
+    </section>
 
-        <section class="invitation">
-            <h2>Invitation</h2>
-            <p>In honor of our 30 years of history, we extend a heartfelt invitation to all former students and teachers to join us in this celebration. Your presence will make the event more special, and we look forward to sharing this significant moment with you.</p>
-        </section>
+    <div class="section-divider"><span>Nội dung chương trình</span></div>
+    <section id="program" class="program-section">
+      <ul class="program-list">
+        <li><strong>07:00 – 08:00:</strong> Đón khách và ổn định chỗ ngồi</li>
+        <li><strong>08:00 – 09:30:</strong> Lễ khai mạc và phát biểu</li>
+        <li><strong>09:30 – 10:30:</strong> Chương trình nghệ thuật</li>
+        <li><strong>10:30 – 11:30:</strong> Gặp gỡ và giao lưu</li>
+      </ul>
+    </section>
 
-        <section class="registration">
-            <h2>Registration Form</h2>
-            <form id="registrationForm">
-                <label for="name">Full Name:</label>
-                <input type="text" id="name" name="name" required>
+    <div class="section-divider"><span>Xác nhận tham dự</span></div>
+    <section id="registration-section" class="registration-section">
+      <!-- Countdown đến 18/10/2025 -->
+      <div class="countdown-wrap">
+        <div class="countdown-date">18 tháng 10 2025</div>
+        <div class="countdown-grid" aria-label="Đếm ngược đến ngày 18/10/2025">
+          <div class="cd-item"><div id="cd-days" class="cd-number">00</div><div class="cd-label">Ngày</div></div>
+          <div class="cd-item"><div id="cd-hours" class="cd-number">00</div><div class="cd-label">Giờ</div></div>
+          <div class="cd-item"><div id="cd-mins" class="cd-number">00</div><div class="cd-label">Phút</div></div>
+          <div class="cd-item"><div id="cd-secs" class="cd-number">00</div><div class="cd-label">Giây</div></div>
+        </div>
+      </div>
 
-                <label for="graduationYear">Graduation Year:</label>
-                <input type="text" id="graduationYear" name="graduationYear" required>
+      <!-- FORM (đã reorder + required + dropdown + email) -->
+      <form id="registrationForm" novalidate>
+        <!-- Honeypot chống bot -->
+        <input type="text" id="website" name="website" class="hp" autocomplete="off" tabindex="-1" aria-hidden="true">
 
-                <label for="phone">Phone Number:</label>
-                <input type="tel" id="phone" name="phone" required>
+        <!-- Họ và tên (required) -->
+        <div class="form-row">
+          <div class="form-group full">
+            <label for="name" class="required">Họ và tên</label>
+            <input type="text" id="name" name="name" required>
+          </div>
+        </div>
 
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email" required>
+        <!-- Tham gia (required) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="session" class="required">Tham gia</label>
+            <select id="session" name="session" required>
+              <option value="" disabled selected>-- Chọn --</option>
+              <option value="Sáng">Buổi sáng</option>
+              <option value="Chiều">Buổi chiều</option>
+              <option value="Cả ngày">Cả ngày</option>
+            </select>
+          </div>
+        </div>
 
-                <label for="attending">Will you attend?</label>
-                <select id="attending" name="attending">
-                    <option value="Yes">Yes</option>
-                    <option value="No">No</option>
-                    <option value="Maybe">Maybe</option>
-                </select>
+        <!-- Số điện thoại (required) & Email (required) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone" class="required">Số điện thoại</label>
+            <input type="tel" id="phone" name="phone" inputmode="tel" required>
+          </div>
+          <div class="form-group">
+            <label for="email" class="required">Email</label>
+            <input type="email" id="email" name="email" inputmode="email" required>
+          </div>
+        </div>
 
-                <button type="submit">Xác nhận tham dự</button>
-            </form>
-            <div id="formMessage" class="form-message"></div>
-        </section>
+        <!-- Lớp (dropdown required) & Niên khóa (dropdown required) -->
+        <div class="form-row">
+          <div class="form-group">
+            <label for="class" class="required">Lớp</label>
+            <select id="class" name="class" required>
+              <option value="" disabled selected>-- Chọn --</option>
+              <option>Toán</option>
+              <option>Lý</option>
+              <option>Hóa</option>
+              <option>Sinh</option>
+              <option>Tin</option>
+              <option>Anh</option>
+              <option>Văn</option>
+              <option>Sử</option>
+              <option>Địa</option>
+              <option>Không chuyên</option>
+              <option>Khác</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="graduationYear" class="required">Niên khóa</label>
+            <select id="graduationYear" name="graduationYear" required>
+              <!-- populate bằng JS: 1992 - 1995 ... 2022 - 2025 -->
+            </select>
+          </div>
+        </div>
 
-        <section class="timeline">
-            <h2>School History</h2>
-            <p>Below is a brief timeline of significant moments in our school’s history. The administration can replace the placeholder text and images with real content.</p>
-            <div class="timeline-item">
-                <h3>1995</h3>
-                <p>The school was founded with a mission to provide quality education.</p>
-                <img src="images/placeholder1.jpg" alt="Founding year photo" />
-            </div>
-            <div class="timeline-item">
-                <h3>2005</h3>
-                <p>Celebrated our 10th anniversary with major renovations to the campus.</p>
-                <img src="images/placeholder2.jpg" alt="10th anniversary photo" />
-            </div>
-            <div class="timeline-item">
-                <h3>2015</h3>
-                <p>Expanded programs and introduced new technology into classrooms.</p>
-                <img src="images/placeholder3.jpg" alt="Technological advancements photo" />
-            </div>
-        </section>
-    </main>
+        <!-- Lời nhắn (optional) -->
+        <div class="form-row">
+          <div class="form-group full">
+            <label for="message">Lời nhắn</label>
+            <textarea id="message" name="message" rows="3" placeholder="(Không bắt buộc)"></textarea>
+          </div>
+        </div>
 
-    <footer class="footer">
-        <p>Thank you for your attention and support. For more information, please contact the organizing committee at <a href="mailto:info@school.com">info@school.com</a>.</p>
-    </footer>
+        <button type="submit" class="submit-button">Gửi xác nhận</button>
+        <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
+      </form>
+    </section>
 
-    <script src="js/script.js"></script>
+    <div class="section-divider"><span>Hình ảnh kỷ niệm</span></div>
+    <section id="gallery" class="gallery-section" aria-label="Hình ảnh kỷ niệm">
+      <div class="gallery-frame">
+        <div id="galleryGrid" class="gallery-grid" aria-live="polite"></div>
+        <div class="gallery-controls">
+          <button id="galPrev" class="gal-btn" aria-label="Trang trước">‹</button>
+          <div id="galDots" class="gal-dots" aria-label="Chọn trang"></div>
+          <button id="galNext" class="gal-btn" aria-label="Trang sau">›</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"><span>Lời kết</span></div>
+    <section id="closing" class="closing-section">
+      <p>Xin chân thành cảm ơn sự quan tâm và hiện diện của quý Thầy Cô, các anh chị em cựu học sinh. Chúc mọi người sức khỏe và hạnh phúc.</p>
+    </section>
+  </main>
+
+  <!-- 5&6) Nút nổi góc dưới phải: RSVP nhanh & Mute luôn hiển thị khi cuộn -->
+  <button id="quickRsvp" class="fab fab-rsvp" data-tooltip="Xác nhận tham dự" aria-label="Xác nhận tham dự">📝</button>
+  <button id="audioControl" class="fab fab-audio" data-tooltip="Bật/tắt nhạc" aria-label="Bật/Tắt nhạc">🔇</button>
+
+  <script src="js/script.js"></script>
 </body>
 </html>

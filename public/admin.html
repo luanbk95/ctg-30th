@@ -1,0 +1,52 @@
+<!-- Execute on: your deployment server (file path: public/admin.html) -->
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng ký tham dự — Bảng dữ liệu</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    .admin-wrap{max-width:1100px;margin:24px auto;padding:0 16px}
+    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:12px}
+    .toolbar button{padding:8px 12px;border-radius:8px;border:1px solid #1d5fbf;background:#1d5fbf;color:#fff;cursor:pointer}
+    .toolbar button.secondary{background:#fff;color:#1d5fbf}
+    .table-wrap{overflow:auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+    table{border-collapse:collapse;width:100%;min-width:960px}
+    th,td{padding:10px 12px;border-bottom:1px solid #eee;text-align:left;font-size:.95rem}
+    th{background:#f8fafc;color:#0a3c5a;position:sticky;top:0}
+    tr:hover{background:#f9fbff}
+    .muted{color:#777;font-size:.9rem}
+  </style>
+</head>
+<body>
+  <div class="admin-wrap">
+    <h1 style="margin:10px 0 14px; font-size:1.6rem; color:#0a3c5a">Danh sách đăng ký tham dự</h1>
+    <div class="toolbar">
+      <button id="btnRefresh">Refresh</button>
+      <button id="btnExportCsv" class="secondary">Export CSV (Excel)</button>
+      <span class="muted" id="rowCount"></span>
+    </div>
+    <div class="table-wrap">
+      <table id="regTable" aria-label="Bảng đăng ký">
+        <thead>
+          <tr>
+            <th>Thời gian</th>
+            <th>Họ và tên</th>
+            <th>Tham gia</th>
+            <th>Số điện thoại</th>
+            <th>Email</th>
+            <th>Lớp</th>
+            <th>Niên khóa</th>
+            <th>Lời nhắn</th>
+            <th>IP</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="muted" style="margin-top:10px">Trang này yêu cầu đăng nhập bằng HTTP Basic (user: <b>admin</b>).</p>
+  </div>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

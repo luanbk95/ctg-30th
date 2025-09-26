@@ -1,124 +1,99 @@
-/* General styling */
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
-}
+/* Reset & base */
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0a3c5a;--gold:#f4c542;--paper:#fdf9f3;--ink:#333;--muted:#777}
+body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fafafa;line-height:1.6}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
-header.banner {
-    background-color: #0a3c5a;
-    color: #f4c542;
-    padding: 60px 20px;
-    text-align: center;
-}
+/* Layout container: narrower content */
+.container{max-width:980px;margin:0 auto;padding:0 20px}
 
-.banner h1 {
-    margin: 0;
-    font-size: 2.5em;
-    font-family: 'Georgia', serif;
-}
+/* 1) Hero (centered) */
+.hero{position:relative;min-height:70vh;background-image:url("../images/school.jpg");background-size:cover;background-position:center;background-attachment:fixed;display:flex;align-items:center;justify-content:center;text-align:center}
+.hero-overlay{position:absolute;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(3px);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;padding:20px}
+.school-logo{width:148px;height:148px;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));margin-bottom:12px}
+.hero-sub{font-size:1.25rem;letter-spacing:.3px}
+.hero-title{font-family:'Georgia',serif;font-size:3rem;margin:.45rem 0}
+.hero-date{font-size:1.2rem;opacity:.98}
+.scroll-button{margin-top:18px;padding:12px 24px;background:var(--gold);color:var(--navy);border:none;border-radius:30px;font-size:1.05rem;cursor:pointer;transition:transform .15s,background-color .3s}
+.scroll-button:hover{background:#d9a212;transform:translateY(-1px)}
 
-main {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 20px;
-}
+/* Section divider (bigger headings) */
+.section-divider{max-width:980px;margin:48px auto 16px;display:flex;align-items:center;gap:12px;color:var(--navy);padding:0 20px}
+.section-divider::before,.section-divider::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(10,60,90,.4),transparent)}
+.section-divider>span{font-family:'Georgia',serif;font-weight:bold;letter-spacing:.3px;font-size:1.5rem}
 
-section {
-    margin-bottom: 40px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
+/* Invitation (image exact replica) */
+.invitation-section{display:flex;justify-content:center}
+.invitation-image{background:#fff;padding:8px;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.12)}
+.invitation-image img{max-width:100%;height:auto;display:block;border-radius:4px}
 
-section h2 {
-    margin-top: 0;
-    font-family: 'Georgia', serif;
-    color: #0a3c5a;
-}
+/* Cards */
+.program-section,.registration-section,.closing-section{background:#fff;border-radius:12px;padding:24px;box-shadow:0 6px 16px rgba(0,0,0,.08)}
+.closing-section{background:var(--paper);text-align:center;box-shadow:0 6px 16px rgba(0,0,0,.06)}
 
-.details ul {
-    list-style: none;
-    padding: 0;
-}
+/* Program list */
+.program-list{list-style:none;padding:0;margin:0}
+.program-list li{padding:12px 0;border-bottom:1px solid #eee}
+.program-list li:last-child{border-bottom:none}
+.program-list strong{color:var(--navy)}
 
-.details li {
-    margin-bottom: 10px;
-}
+/* Countdown styles — theo màu logo */
+.countdown-wrap{background:#ffffff;border:2px solid #1d5fbf;border-radius:12px;padding:20px;margin-bottom:20px;color:#1d5fbf;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.countdown-date{font-family:'Georgia',serif;font-size:1.6rem;text-align:center;margin-bottom:12px;color:#d62828}
+.countdown-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.cd-item{background:#ffffff;border:1px solid #1d5fbf;border-radius:10px;padding:14px;text-align:center}
+.cd-number{font-size:2rem;font-weight:700;line-height:1;color:#2e7d32}
+.cd-label{font-size:.95rem;margin-top:4px;color:#1d5fbf}
 
-/* Form styling */
-form {
-    display: flex;
-    flex-direction: column;
-}
+/* Registration form */
+.registration-section form{display:flex;flex-direction:column;gap:16px}
+.form-row{display:flex;gap:16px}
+.form-group{flex:1;display:flex;flex-direction:column}
+.form-group.full{flex-basis:100%}
+.form-group label{margin-bottom:6px;font-weight:600;color:var(--navy)}
+.form-group input,.form-group select,.form-group textarea{padding:10px 12px;border:1px solid #ccc;border-radius:8px;font-size:1rem}
+.form-message{margin-top:8px;font-weight:700}
 
-form label {
-    margin-top: 10px;
-}
+.submit-button{align-self:flex-start;padding:12px 24px;background:var(--navy);color:#fff;border:none;border-radius:8px;cursor:pointer;transition:background-color .25s}
+.submit-button:hover{background:#073045}
 
-form input,
-form select,
-form button {
-    padding: 10px;
-    margin-top: 5px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 1em;
-}
+/* Gallery (Hình ảnh kỷ niệm) */
+.gallery-section {}
+.gallery-frame{background:#fff;border:2px solid #1d5fbf;border-radius:12px;padding:16px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
+.gallery-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.gallery-card{position:relative;border:1px solid #1d5fbf;border-radius:10px;overflow:hidden;background:#fff}
+.gallery-card .imgwrap{width:100%;aspect-ratio:3/2;overflow:hidden;background:#f2f2f2}
+.gallery-card img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-caption{position:absolute;left:0;right:0;bottom:0;background:linear-gradient(180deg,transparent,rgba(0,0,0,.45));color:#fff;font-size:.9rem;padding:6px 8px}
+.gallery-controls{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:12px}
+.gal-btn{background:#1d5fbf;color:#fff;border:none;border-radius:8px;padding:8px 12px;cursor:pointer}
+.gal-btn:hover{background:#164d99}
+.gal-dots{display:flex;gap:8px}
+.gal-dot{width:10px;height:10px;border-radius:50%;background:#cbd6ea;border:1px solid #1d5fbf;cursor:pointer}
+.gal-dot.active{background:#1d5fbf}
 
-form button {
-    background-color: #0a3c5a;
-    color: #fff;
-    border: none;
-    cursor: pointer;
-    margin-top: 20px;
-    transition: background-color 0.3s ease;
-}
+/* Floating action buttons (bottom-right) */
+.fab{position:fixed;right:20px;z-index:9999;width:52px;height:52px;border-radius:50%;border:none;cursor:pointer;background:#fff;color:var(--navy);box-shadow:0 6px 18px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center}
+.fab:hover{transform:translateY(-1px)}
+.fab::after{content:attr(data-tooltip);position:absolute;right:60px;white-space:nowrap;background:rgba(0,0,0,.75);color:#fff;font-size:.85rem;padding:6px 10px;border-radius:6px;opacity:0;pointer-events:none;transform:translateX(8px);transition:opacity .15s,transform .15s}
+.fab:hover::after{opacity:1;transform:translateX(0)}
+.fab-audio{bottom:20px}
+.fab-rsvp{bottom:88px;background:var(--gold);color:var(--navy)}
 
-form button:hover {
-    background-color: #073045;
+/* Responsive tweaks */
+@media (max-width:992px){.container{max-width:880px}}
+@media (max-width:768px){
+  .container{max-width:640px}
+  .hero{min-height:62vh}
+  .school-logo{width:128px;height:128px}
+  .hero-title{font-size:2.4rem}
+  .hero-sub{font-size:1.1rem}
+  .hero-date{font-size:1.05rem}
+  .form-row{flex-direction:column}
+  .countdown-grid{grid-template-columns:repeat(2,1fr)}
 }
-
-.form-message {
-    margin-top: 10px;
-    color: green;
-    font-weight: bold;
-}
-
-/* Timeline styling */
-.timeline-item {
-    border-left: 4px solid #0a3c5a;
-    padding-left: 16px;
-    margin-bottom: 20px;
-}
-
-.timeline-item h3 {
-    margin-top: 0;
-    color: #0a3c5a;
-}
-
-.timeline-item img {
-    max-width: 100%;
-    height: auto;
-    margin-top: 10px;
-    border-radius: 4px;
-}
-
-/* Responsive design */
-@media (max-width: 600px) {
-    .banner h1 {
-        font-size: 2em;
-    }
-    main {
-        padding: 10px;
-    }
-    form input,
-    form select,
-    form button {
-        font-size: 0.9em;
-    }
+@media (max-width:480px){
+  .container{max-width:100%;padding:0 16px}
+  .school-logo{width:116px;height:116px}
+  .hero-title{font-size:2.1rem}
 }
