@@ -1,0 +1,12 @@
+{
+  "name": "invite-website",
+  "version": "1.0.0",
+  "description": "A 30th anniversary invitation website",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}

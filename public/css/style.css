@@ -1,0 +1,124 @@
+/* General styling */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header.banner {
+    background-color: #0a3c5a;
+    color: #f4c542;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.banner h1 {
+    margin: 0;
+    font-size: 2.5em;
+    font-family: 'Georgia', serif;
+}
+
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+section {
+    margin-bottom: 40px;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+section h2 {
+    margin-top: 0;
+    font-family: 'Georgia', serif;
+    color: #0a3c5a;
+}
+
+.details ul {
+    list-style: none;
+    padding: 0;
+}
+
+.details li {
+    margin-bottom: 10px;
+}
+
+/* Form styling */
+form {
+    display: flex;
+    flex-direction: column;
+}
+
+form label {
+    margin-top: 10px;
+}
+
+form input,
+form select,
+form button {
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+form button {
+    background-color: #0a3c5a;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #073045;
+}
+
+.form-message {
+    margin-top: 10px;
+    color: green;
+    font-weight: bold;
+}
+
+/* Timeline styling */
+.timeline-item {
+    border-left: 4px solid #0a3c5a;
+    padding-left: 16px;
+    margin-bottom: 20px;
+}
+
+.timeline-item h3 {
+    margin-top: 0;
+    color: #0a3c5a;
+}
+
+.timeline-item img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 10px;
+    border-radius: 4px;
+}
+
+/* Responsive design */
+@media (max-width: 600px) {
+    .banner h1 {
+        font-size: 2em;
+    }
+    main {
+        padding: 10px;
+    }
+    form input,
+    form select,
+    form button {
+        font-size: 0.9em;
+    }
+}

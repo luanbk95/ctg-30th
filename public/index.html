@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>30th Anniversary Invitation</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <header class="banner">
+        <h1>Lễ kỷ niệm 30 năm thành lập Trường</h1>
+    </header>
+
+    <main>
+        <section class="intro">
+            <h2>Introduction</h2>
+            <p>We cordially invite all alumni, teachers, and staff to celebrate the 30th anniversary of our school. This milestone marks three decades of dedication to education and community. Join us for a memorable event that reflects on our past, celebrates our present, and looks toward the future.</p>
+        </section>
+
+        <section class="details">
+            <h2>Event Details</h2>
+            <ul>
+                <li><strong>Date:</strong> December 15, 2025</li>
+                <li><strong>Time:</strong> 18:00 – 21:00</li>
+                <li><strong>Location:</strong> Main Hall of the School</li>
+                <li><strong>Program:</strong> Opening ceremony, speech from the principal, performances, dinner, and networking.</li>
+            </ul>
+        </section>
+
+        <section class="invitation">
+            <h2>Invitation</h2>
+            <p>In honor of our 30 years of history, we extend a heartfelt invitation to all former students and teachers to join us in this celebration. Your presence will make the event more special, and we look forward to sharing this significant moment with you.</p>
+        </section>
+
+        <section class="registration">
+            <h2>Registration Form</h2>
+            <form id="registrationForm">
+                <label for="name">Full Name:</label>
+                <input type="text" id="name" name="name" required>
+
+                <label for="graduationYear">Graduation Year:</label>
+                <input type="text" id="graduationYear" name="graduationYear" required>
+
+                <label for="phone">Phone Number:</label>
+                <input type="tel" id="phone" name="phone" required>
+
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" required>
+
+                <label for="attending">Will you attend?</label>
+                <select id="attending" name="attending">
+                    <option value="Yes">Yes</option>
+                    <option value="No">No</option>
+                    <option value="Maybe">Maybe</option>
+                </select>
+
+                <button type="submit">Xác nhận tham dự</button>
+            </form>
+            <div id="formMessage" class="form-message"></div>
+        </section>
+
+        <section class="timeline">
+            <h2>School History</h2>
+            <p>Below is a brief timeline of significant moments in our school’s history. The administration can replace the placeholder text and images with real content.</p>
+            <div class="timeline-item">
+                <h3>1995</h3>
+                <p>The school was founded with a mission to provide quality education.</p>
+                <img src="images/placeholder1.jpg" alt="Founding year photo" />
+            </div>
+            <div class="timeline-item">
+                <h3>2005</h3>
+                <p>Celebrated our 10th anniversary with major renovations to the campus.</p>
+                <img src="images/placeholder2.jpg" alt="10th anniversary photo" />
+            </div>
+            <div class="timeline-item">
+                <h3>2015</h3>
+                <p>Expanded programs and introduced new technology into classrooms.</p>
+                <img src="images/placeholder3.jpg" alt="Technological advancements photo" />
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p>Thank you for your attention and support. For more information, please contact the organizing committee at <a href="mailto:info@school.com">info@school.com</a>.</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
