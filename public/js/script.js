@@ -38,6 +38,31 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   updateCountdown(); setInterval(updateCountdown, 1000);
 
+  // ===== Stats (capacity) =====
+  async function refreshStats(){
+    try{
+      const r = await fetch('/stats', {cache:'no-store'});
+      if(!r.ok) return;
+      const data = await r.json();
+      const cap = data.capacityMorning || 400;
+      const morning = data.morning || 0;
+      const afternoon = data.afternoon || 0;
+
+      const p = Math.max(0, Math.min(100, Math.round(morning*100/cap)));
+      const barMorning = document.getElementById('barMorning');
+      const barAfternoon = document.getElementById('barAfternoon');
+      const txtMorning = document.getElementById('txtMorning');
+      const txtAfternoon = document.getElementById('txtAfternoon');
+
+      if(barMorning){ barMorning.style.width = p + '%'; }
+      if(txtMorning){ txtMorning.textContent = `${morning} / ${cap}`; }
+      if(barAfternoon){ barAfternoon.style.width = '100%'; }
+      if(txtAfternoon){ txtAfternoon.textContent = `${afternoon}`; }
+    }catch(e){ /* silent */ }
+  }
+  refreshStats();
+  setInterval(refreshStats, 15000);
+
   // ===== Populate Niên khóa options (1992-1995 ... 2022-2025) =====
   const gySel = document.getElementById('graduationYear');
   if(gySel){
@@ -88,7 +113,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     if(!phoneOk){ showError('Số điện thoại chưa hợp lệ'); return; }
     btnSubmit.disabled=true; const oldText=btnSubmit.textContent; btnSubmit.textContent='Đang gửi...';
     const payload={ name, session, phone, email, className, graduationYear, message };
-    try{ const res=await fetch('/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const json=await res.json(); if(json.status==='success'){ showSuccess('Cảm ơn bạn đã đăng ký! Thông tin đã được gửi.'); form.reset(); } else { showError(json.message||'Đã xảy ra lỗi khi gửi thông tin.'); } }
+    try{ const res=await fetch('/submit',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); const json=await res.json(); if(json.status==='success'){ showSuccess('Cảm ơn bạn đã đăng ký! Thông tin đã được gửi.'); form.reset(); refreshStats(); } else { showError(json.message||'Đã xảy ra lỗi khi gửi thông tin.'); } }
     catch(_){ showError('Lỗi kết nối. Vui lòng thử lại sau.'); }
     finally{ btnSubmit.disabled=false; btnSubmit.textContent=oldText; }
   });

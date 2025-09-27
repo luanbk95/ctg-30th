@@ -84,27 +84,39 @@ app.post('/submit', (req, res) => {
   const phoneDigits = (phone||'').replace(/[^0-9]/g,'');
   const phoneOk = phoneDigits.length >= 7 && phoneDigits.length <= 15;
 
+  const allowedSessions = new Set(['Sáng','Chiều']);
+
   if(!name||!session||!phone||!email||!className||!graduationYear){
     return res.status(400).json({ status: 'error', message: 'Vui lòng điền đầy đủ các trường bắt buộc.' });
+  }
+  if(!allowedSessions.has(session)){
+    return res.status(400).json({ status: 'error', message: 'Lựa chọn Tham gia không hợp lệ.' });
   }
   if(!emailOk){ return res.status(400).json({ status: 'error', message: 'Email chưa hợp lệ.' }); }
   if(!phoneOk){ return res.status(400).json({ status: 'error', message: 'Số điện thoại chưa hợp lệ.' }); }
 
+  const meta = {
+    ip: ipFrom(req),
+    userAgent: sanitize(req.headers['user-agent']||'', 200),
+    referer: sanitize(req.headers['referer']||'', 200)
+  };
+
   const record = {
     name, session, phone, email, className, graduationYear, message,
     timestamp: new Date().toISOString(),
-    ip: ipFrom(req),
-    meta: {
-      ip: ipFrom(req),
-      userAgent: sanitize(req.headers['user-agent']||'', 200),
-      referer: sanitize(req.headers['referer']||'', 200)
-    }
+    meta
   };
 
   const filePath = path.join(dataDir, 'registrations.json');
   let registrations = [];
   if (fs.existsSync(filePath)) {
     try { registrations = JSON.parse(fs.readFileSync(filePath)); } catch(_) { registrations = []; }
+  }
+  if (session === 'Sáng'){
+    const morningCount = registrations.filter(r => r.session === 'Sáng').length;
+    if (morningCount >= 400){
+      return res.status(409).json({ status: 'full', message: 'Buổi sáng đã đủ 400 chỗ. Vui lòng chọn Buổi chiều.' });
+    }
   }
   registrations.push(record);
   fs.writeFileSync(filePath, JSON.stringify(registrations, null, 2));
@@ -122,6 +134,18 @@ app.get('/registrations', basicAuth, (req, res) => {
   const filePath = path.join(dataDir, 'registrations.json');
   if (!fs.existsSync(filePath)) return res.json([]);
   res.sendFile(filePath);
+});
+
+// Public stats (no PII)
+app.get('/stats', (req, res) => {
+  const filePath = path.join(dataDir, 'registrations.json');
+  let registrations = [];
+  if (fs.existsSync(filePath)) {
+    try { registrations = JSON.parse(fs.readFileSync(filePath)); } catch(_) { registrations = []; }
+  }
+  const morning = registrations.filter(r => r.session === 'Sáng').length;
+  const afternoon = registrations.filter(r => r.session === 'Chiều').length;
+  res.json({ morning, afternoon, capacityMorning: 400 });
 });
 
 app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));

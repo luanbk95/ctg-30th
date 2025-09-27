@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lễ kỷ niệm 30 năm THPT Chuyên Tiền Giang</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="/css/style.css">
   <style>
     /* inline helpers so asterisk + honeypot work even if CSS not refreshed */
     .form-group label.required::after{content:" *";color:#d62828}
@@ -61,6 +61,27 @@
         </div>
       </div>
 
+      <!-- Statistics -->
+      <div class="capacity-wrap">
+        <div class="cap-title">Đã đăng ký</div>
+      
+        <div class="progress-row">
+          <div class="progress-label">Buổi sáng <span class="muted">(giới hạn 400 chỗ)</span></div>
+          <div class="progress" aria-label="Sáng">
+            <div id="barMorning" class="progress-inner" style="width:0%"></div>
+          </div>
+          <div class="progress-meta"><span id="txtMorning">0 / 400</span></div>
+        </div>
+      
+        <div class="progress-row">
+          <div class="progress-label">Buổi chiều <span class="muted">(không giới hạn)</span></div>
+          <div class="progress" aria-label="Chiều">
+            <div id="barAfternoon" class="progress-inner full" style="width:100%"></div>
+          </div>
+          <div class="progress-meta"><span id="txtAfternoon">0</span></div>
+        </div>
+      </div>
+
       <!-- FORM (đã reorder + required + dropdown + email) -->
       <form id="registrationForm" novalidate>
         <!-- Honeypot chống bot -->
@@ -82,7 +103,6 @@
               <option value="" disabled selected>-- Chọn --</option>
               <option value="Sáng">Buổi sáng</option>
               <option value="Chiều">Buổi chiều</option>
-              <option value="Cả ngày">Cả ngày</option>
             </select>
           </div>
         </div>
@@ -161,6 +181,6 @@
   <button id="quickRsvp" class="fab fab-rsvp" data-tooltip="Xác nhận tham dự" aria-label="Xác nhận tham dự">📝</button>
   <button id="audioControl" class="fab fab-audio" data-tooltip="Bật/tắt nhạc" aria-label="Bật/Tắt nhạc">🔇</button>
 
-  <script src="js/script.js"></script>
+  <script src="/js/script.js"></script>
 </body>
 </html>
