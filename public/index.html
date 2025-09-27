@@ -182,5 +182,22 @@
   <button id="audioControl" class="fab fab-audio" data-tooltip="Bật/tắt nhạc" aria-label="Bật/Tắt nhạc">🔇</button>
 
   <script src="/js/script.js"></script>
+
+  <!-- Success Modal: QR & actions -->
+  <div id="qrModal" class="modal" hidden>
+    <div class="modal-backdrop"></div>
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="qrModalTitle">
+      <button id="qrClose" class="modal-close" aria-label="Đóng">×</button>
+      <h2 id="qrModalTitle">Đăng ký thành công</h2>
+      <p class="muted">Vui lòng lưu mã QR để làm thủ tục điểm danh khi tham dự.</p>
+      <img id="qrImage" alt="QR vé" class="qr-big"/>
+      <div class="modal-actions">
+        <a id="btnDownloadQR" class="btn" download>Download QR</a>
+        <button id="btnCopyLink" class="btn secondary">Copy link vé</button>
+      </div>
+      <p class="muted" id="ticketLinkText"></p>
+    </div>
+  </div>
+
 </body>
 </html>
