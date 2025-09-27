@@ -149,14 +149,20 @@ document.addEventListener('DOMContentLoaded',()=>{
   const btnNext = document.getElementById('galNext');
   const galleryFrame = document.querySelector('.gallery-frame');
 
-  let pages = new Array(GALLERY_PAGE_COUNT);
+  // --- (1) Cache DOM phần tử mỗi page để không GET lại khi chuyển trang ---
+  // pagesSrc[idx] = array các URL ảnh của page idx
+  // pagesDom[idx] = array các <div.gallery-card> đã tạo (sẽ "move" qua lại, không recreate)
+  const pagesSrc = new Array(GALLERY_PAGE_COUNT);
+  const pagesDom = new Array(GALLERY_PAGE_COUNT);
   let current = 0;
   let timer = null;
+  let userInteractedGallery = false; // (2) khi true, tắt auto-rotate vĩnh viễn cho phiên hiện tại
 
   function fileCaption(path){
     const name = path.split('/').pop().split('?')[0];
     return name.replace(/\.(jpg|jpeg|png|webp)$/i,'').replace(/[._-]+/g,' ');
   }
+
   function createCard(src){
     const card = document.createElement('div');
     card.className = 'gallery-card';
@@ -165,7 +171,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     const img = document.createElement('img');
     img.loading = 'lazy';
     img.decoding = 'async';
-    img.src = src;
+    img.src = src;                // tải 1 lần, sau đó tái sử dụng element
     img.alt = fileCaption(src);
     wrap.appendChild(img);
     card.appendChild(wrap);
@@ -173,19 +179,47 @@ document.addEventListener('DOMContentLoaded',()=>{
     cap.className = 'gallery-caption';
     cap.textContent = fileCaption(src);
     card.appendChild(cap);
-    card.addEventListener('click',()=>openLightbox(src));
+    card.addEventListener('click',()=>{
+      userInteracted();           // tắt auto khi người dùng xem ảnh
+      openLightbox(src);
+    });
     return card;
   }
+
+  function ensurePage(idx){
+    if (pagesDom[idx]) return pagesDom[idx];
+
+    // Tạo danh sách URL 1 lần
+    if (!pagesSrc[idx]){
+      const folder = `${GALLERY_BASE}/page${idx+1}`;
+      const urls = [];
+      for(let n=1;n<=IMAGES_PER_PAGE;n++){ urls.push(`${folder}/${n}.jpg`); }
+      pagesSrc[idx] = urls;
+    }
+
+    // Tạo DOM card 1 lần, giữ trong cache để "move" qua lại
+    const domList = pagesSrc[idx].map(u => createCard(u));
+    pagesDom[idx] = domList;
+
+    // Prefetch ảnh đầu của trang kế tiếp (tối thiểu)
+    const nextFirst = `${GALLERY_BASE}/page${((idx+1)%GALLERY_PAGE_COUNT)+1}/1.jpg`;
+    const pre = new Image(); pre.loading='eager'; pre.src = nextFirst;
+
+    return pagesDom[idx];
+  }
+
   function renderPage(index){
     if(index<0) return;
     current = (index + GALLERY_PAGE_COUNT) % GALLERY_PAGE_COUNT;
-    const imgs = ensurePage(current);
+    const cards = ensurePage(current);
     if (grid){
-      grid.innerHTML='';
-      imgs.forEach(src=>grid.appendChild(createCard(src)));
+      grid.innerHTML = '';
+      // move các node đã cache vào grid (không tạo lại, không GET lại)
+      cards.forEach(card => grid.appendChild(card));
     }
     updateDots();
   }
+
   function updateDots(){
     if (!dotsWrap) return;
     dotsWrap.innerHTML='';
@@ -193,33 +227,41 @@ document.addEventListener('DOMContentLoaded',()=>{
       const dot=document.createElement('button');
       dot.className='gal-dot'+(i===current?' active':'');
       dot.setAttribute('aria-label',`Trang ${i+1}`);
-      dot.addEventListener('click',()=>{ stopAuto(); renderPage(i); startAuto(); });
+      dot.addEventListener('click',()=>{
+        userInteracted();
+        renderPage(i);
+      });
       dotsWrap.appendChild(dot);
     }
   }
-  function ensurePage(idx){
-    if(pages[idx]) return pages[idx];
-    const folder = `${GALLERY_BASE}/page${idx+1}`;
-    const imgs = [];
-    for(let n=1;n<=IMAGES_PER_PAGE;n++){ imgs.push(`${folder}/${n}.jpg`); }
-    pages[idx]=imgs;
-    const nextFirst = `${GALLERY_BASE}/page${((idx+1)%GALLERY_PAGE_COUNT)+1}/1.jpg`;
-    const pre=new Image(); pre.loading='eager'; pre.src=nextFirst;
-    return imgs;
-  }
+
   function nextPage(){ renderPage(current+1); }
   function prevPage(){ renderPage(current-1); }
-  function startAuto(){ stopAuto(); timer=setInterval(nextPage,AUTO_INTERVAL_MS); }
-  function stopAuto(){ if(timer){ clearInterval(timer); timer=null; } }
 
-  if (btnNext) btnNext.addEventListener('click',()=>{ stopAuto(); nextPage(); startAuto(); });
-  if (btnPrev) btnPrev.addEventListener('click',()=>{ stopAuto(); prevPage(); startAuto(); });
-  if (galleryFrame){
-    galleryFrame.addEventListener('mouseenter',stopAuto);
-    galleryFrame.addEventListener('mouseleave',startAuto);
+  function startAuto(){
+    if (userInteractedGallery) return; // đã có tương tác thì không auto nữa
+    stopAuto();
+    timer = setInterval(nextPage, AUTO_INTERVAL_MS);
+  }
+  function stopAuto(){ if(timer){ clearInterval(timer); timer=null; } }
+  function userInteracted(){
+    // bất kỳ tương tác nào với gallery sẽ tắt auto vĩnh viễn cho phiên này
+    userInteractedGallery = true;
+    stopAuto();
   }
 
-  // Lightbox simple
+  // Nút điều khiển trang
+  if (btnNext) btnNext.addEventListener('click',()=>{ userInteracted(); nextPage(); });
+  if (btnPrev) btnPrev.addEventListener('click',()=>{ userInteracted(); prevPage(); });
+
+  // Tương tác trong frame (click/scroll/drag) => tắt auto
+  if (galleryFrame){
+    ['pointerdown','wheel','touchstart','keydown'].forEach(evt=>{
+      galleryFrame.addEventListener(evt, userInteracted, {passive:true});
+    });
+  }
+
+  // --- (3) Lightbox: đóng bằng Back trên mobile (history back) ---
   let lightbox=null;
   function openLightbox(src){
     if(!lightbox){
@@ -233,15 +275,47 @@ document.addEventListener('DOMContentLoaded',()=>{
       const img=document.createElement('img');
       Object.assign(img.style,{maxWidth:'92%',maxHeight:'92%',boxShadow:'0 10px 30px rgba(0,0,0,.5)',borderRadius:'8px'});
       lightbox.appendChild(img);
-      lightbox.addEventListener('click',()=>{ lightbox.style.display='none'; });
+
+      // click nền để đóng
+      lightbox.addEventListener('click',()=>{ closeLightbox(); });
+
+      // ESC để đóng
+      document.addEventListener('keydown',(e)=>{
+        if(e.key==='Escape' && isLightboxOpen()){ closeLightbox(); }
+      });
+
       document.body.appendChild(lightbox);
     }
     lightbox.querySelector('img').src=src;
     lightbox.style.display='flex';
-  }
+    document.body.style.overflow='hidden';
 
-  // Initialize gallery
-  for(let i=0;i<GALLERY_PAGE_COUNT;i++){ ensurePage(i); }
+    // push state để nút Back thoát lightbox thay vì rời trang
+    try{ history.pushState({lightbox:true}, ''); }catch(_){}
+  }
+  function isLightboxOpen(){ return lightbox && lightbox.style.display!=='none'; }
+  function closeLightbox(){
+    if(!lightbox) return;
+    lightbox.style.display='none';
+    document.body.style.overflow='';
+    // Nếu state top là lightbox thì pop về trước đó (tránh lùi khỏi trang)
+    // Không gọi history.back() ở đây để tránh vòng lặp; rely on popstate handler
+  }
+  window.addEventListener('popstate',(e)=>{
+    // Nếu Back và đang mở lightbox => chỉ đóng lightbox, không rời trang
+    if (e.state && e.state.lightbox){
+      // do nothing: trạng thái đã back về state trước; đảm bảo lightbox đóng
+      closeLightbox();
+    } else if (isLightboxOpen()){
+      // Một số trình duyệt không giữ state => vẫn đảm bảo đóng
+      closeLightbox();
+      // Và đẩy lại state hiện tại để user nhấn back lần nữa mới rời trang
+      try{ history.pushState({}, ''); }catch(_){}
+    }
+  });
+
+  // Khởi tạo gallery
+  for(let i=0;i<GALLERY_PAGE_COUNT;i++){ ensurePage(i); } // chuẩn bị cache URL/DOM
   renderPage(0);
   updateDots();
   startAuto();
