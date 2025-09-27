@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // ===== Gallery (Hình ảnh kỷ niệm) =====
   const GALLERY_BASE = 'images/gallery';
-  const GALLERY_PAGE_COUNT = 5;
+  const GALLERY_PAGE_COUNT = 12;
   const AUTO_INTERVAL_MS = 6000;
   const IMAGES_PER_PAGE = 4;
 
