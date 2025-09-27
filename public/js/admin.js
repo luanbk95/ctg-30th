@@ -1,65 +1,78 @@
-// Execute on: your deployment server (file path: public/js/admin.js)
-async function fetchRegs(){
-  const res = await fetch('/registrations', { cache: 'no-store' });
-  if(!res.ok){ throw new Error('Failed to load registrations'); }
-  return await res.json();
-}
+(async function(){
+  async function fetchJson(url){
+    const r = await fetch(url, {cache:'no-store'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  }
+  function esc(s){ return String(s||'').replace(/[&<>"']/g,m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[m])); }
+  function formatSessions(arr){
+    if(!Array.isArray(arr) || !arr.length) return '';
+    const map = { ceremony:'Phần Lễ (sáng T7)', festival:'Phần Hội (chiều tối T7)', sports:'Giao lưu thể thao (CN sáng)' };
+    return arr.map(s=>map[s]||s).join(' • ');
+  }
+  function toCsvCell(v){ 
+    const s = String(v==null?'':v).replace(/"/g,'""');
+    // wrap every field in quotes for safety
+    return `"${s}"`;
+  }
 
-function escapeCell(s){
-  if(s===null||s===undefined) return '';
-  return String(s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
+  let data = [];
+  try{
+    // /registrations có Basic Auth theo server.js
+    const r = await fetch('/registrations', {cache:'no-store'});
+    if(!r.ok){
+      document.getElementById('tbody').innerHTML = `<tr><td colspan="11">Failed to load (${r.status})</td></tr>`;
+      return;
+    }
+    data = await r.json();
+  }catch(e){
+    document.getElementById('tbody').innerHTML = `<tr><td colspan="11">Error: ${esc(e.message)}</td></tr>`;
+    return;
+  }
 
-function renderTable(rows){
-  const tbody = document.querySelector('#regTable tbody');
+  const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
-  rows.forEach(r=>{
+  data.forEach((rec, idx)=>{
     const tr = document.createElement('tr');
-    const ip = r.ip || r?.meta?.ip || '';
-    const cells = [r.timestamp, r.name, r.session, r.phone, r.email, r.className||r.class, r.graduationYear, r.message, ip];
-    cells.forEach(val=>{ const td=document.createElement('td'); td.innerHTML = escapeCell(val); tr.appendChild(td); });
+    tr.innerHTML = `
+      <td>${idx+1}</td>
+      <td>${esc(rec.timestamp)}</td>
+      <td>${esc(rec.name)}</td>
+      <td>${esc(rec.email)}</td>
+      <td>${esc(rec.phone)}</td>
+      <td>${esc(rec.className)}</td>
+      <td>${esc(rec.graduationYear)}</td>
+      <td>${esc(formatSessions(rec.sessions))}</td>
+      <td>${esc(rec.meta?.ip || '')}</td>
+      <td>${esc(rec.meta?.userAgent || '')}</td>
+      <td>${esc(rec.ticketId || '')}</td>
+    `;
     tbody.appendChild(tr);
   });
-  document.getElementById('rowCount').textContent = `${rows.length} record(s)`;
-}
+  document.getElementById('metaCount').textContent = `${data.length} bản ghi`;
 
-function toCsv(rows){
-  const headers = ['timestamp','name','session','phone','email','className','graduationYear','message','ip'];
-  const csv = [headers.join(',')].concat(
-    rows.map(r=>{
-      const ip = r.ip || (r.meta&&r.meta.ip) || '';
-      const arr = [r.timestamp, r.name, r.session, r.phone, r.email, r.className||r.class, r.graduationYear, (r.message||'').replace(/\n/g,' '), ip];
-      return arr.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',');
-    })
-  ).join('\n');
-  return csv;
-}
-
-function downloadCsv(filename, csv){
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 0);
-}
-
-async function main(){
-  const btnRefresh = document.getElementById('btnRefresh');
-  const btnExportCsv = document.getElementById('btnExportCsv');
-
-  async function load(){
-    try{ const rows = await fetchRegs(); renderTable(rows); }
-    catch(err){ alert('Không tải được dữ liệu: ' + err.message); }
-  }
-  btnRefresh.addEventListener('click', load);
-  btnExportCsv.addEventListener('click', async ()=>{
-    try{ const rows = await fetchRegs(); const csv = toCsv(rows); downloadCsv(`registrations-${Date.now()}.csv`, csv); }
-    catch(err){ alert('Không export được: ' + err.message); }
+  // Export CSV (Excel mở được)
+  document.getElementById('btnExportCsv').addEventListener('click', ()=>{
+    const headers = ['#','timestamp','name','email','phone','className','graduationYear','sessions','ip','userAgent','ticketId'];
+    const rows = data.map((rec, i)=>[
+      i+1,
+      rec.timestamp||'',
+      rec.name||'',
+      rec.email||'',
+      rec.phone||'',
+      rec.className||'',
+      rec.graduationYear||'',
+      Array.isArray(rec.sessions)? rec.sessions.join('|') : '',
+      rec.meta?.ip || '',
+      rec.meta?.userAgent || '',
+      rec.ticketId || ''
+    ]);
+    const csv = [headers, ...rows].map(r=>r.map(toCsvCell).join(',')).join('\r\n');
+    const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `registrations_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.csv`;
+    document.body.appendChild(a); a.click(); a.remove();
+    URL.revokeObjectURL(url);
   });
-
-  await load();
-}
-
-main();
+})();

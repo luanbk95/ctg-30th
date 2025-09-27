@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lễ kỷ niệm 30 năm THPT Chuyên Tiền Giang</title>
   <link rel="stylesheet" href="/css/style.css">
+  <!-- Lora (Vietnamese subset); 600 cho sub/date, 700 cho title -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lora:wght@600;700&display=swap&subset=vietnamese" rel="stylesheet">
   <style>
     /* inline helpers so asterisk + honeypot work even if CSS not refreshed */
     .form-group label.required::after{content:" *";color:#d62828}
@@ -51,8 +55,8 @@
     <div class="section-divider"><span>Xác nhận tham dự</span></div>
     <section id="registration-section" class="registration-section">
       <!-- Countdown đến 18/10/2025 -->
-      <div class="countdown-wrap">
-        <div class="countdown-date">18 tháng 10 2025</div>
+      <div class="countdown-wrap soft-blue">
+        <div class="countdown-date"><strong>Ngày 18 tháng 10 năm 2025</strong></div>
         <div class="countdown-grid" aria-label="Đếm ngược đến ngày 18/10/2025">
           <div class="cd-item"><div id="cd-days" class="cd-number">00</div><div class="cd-label">Ngày</div></div>
           <div class="cd-item"><div id="cd-hours" class="cd-number">00</div><div class="cd-label">Giờ</div></div>
@@ -62,52 +66,53 @@
       </div>
 
       <!-- Statistics -->
-      <div class="capacity-wrap">
-        <div class="cap-title">Đã đăng ký</div>
+      <div class="stats-wrap soft-blue" aria-label="Số lượng đã đăng ký">
+        <h3 class="stats-title">Đã đăng ký</h3>
       
-        <div class="progress-row">
-          <div class="progress-label">Buổi sáng <span class="muted">(giới hạn 400 chỗ)</span></div>
-          <div class="progress" aria-label="Sáng">
-            <div id="barMorning" class="progress-inner" style="width:0%"></div>
+        <div class="stat-row">
+          <div class="stat-head">
+            <span class="stat-name">Phần Lễ (sáng Thứ 7) — giới hạn 400 chỗ</span>
+            <span id="txtCeremony" class="stat-val">0 / 400</span>
           </div>
-          <div class="progress-meta"><span id="txtMorning">0 / 400</span></div>
+          <div class="bar">
+            <div id="barCeremony" class="bar-fill" style="width:0%"></div>
+          </div>
         </div>
       
-        <div class="progress-row">
-          <div class="progress-label">Buổi chiều <span class="muted">(không giới hạn)</span></div>
-          <div class="progress" aria-label="Chiều">
-            <div id="barAfternoon" class="progress-inner full" style="width:100%"></div>
+        <div class="stat-row">
+          <div class="stat-head">
+            <span class="stat-name">Phần Hội (chiều tối Thứ 7) — không giới hạn</span>
+            <span id="txtFestival" class="stat-val">0</span>
           </div>
-          <div class="progress-meta"><span id="txtAfternoon">0</span></div>
+          <div class="bar">
+            <div id="barFestival" class="bar-fill full"></div>
+          </div>
+        </div>
+      
+        <div class="stat-row">
+          <div class="stat-head">
+            <span class="stat-name">Giao lưu thể thao (sáng Chủ Nhật) — không giới hạn</span>
+            <span id="txtSports" class="stat-val">0</span>
+          </div>
+          <div class="bar">
+            <div id="barSports" class="bar-fill full"></div>
+          </div>
         </div>
       </div>
 
       <!-- FORM (đã reorder + required + dropdown + email) -->
       <form id="registrationForm" novalidate>
-        <!-- Honeypot chống bot -->
         <input type="text" id="website" name="website" class="hp" autocomplete="off" tabindex="-1" aria-hidden="true">
-
-        <!-- Họ và tên (required) -->
+      
+        <!-- Họ và tên -->
         <div class="form-row">
           <div class="form-group full">
             <label for="name" class="required">Họ và tên</label>
             <input type="text" id="name" name="name" required>
           </div>
         </div>
-
-        <!-- Tham gia (required) -->
-        <div class="form-row">
-          <div class="form-group">
-            <label for="session" class="required">Tham gia</label>
-            <select id="session" name="session" required>
-              <option value="" disabled selected>-- Chọn --</option>
-              <option value="Sáng">Buổi sáng</option>
-              <option value="Chiều">Buổi chiều</option>
-            </select>
-          </div>
-        </div>
-
-        <!-- Số điện thoại (required) & Email (required) -->
+      
+        <!-- Số điện thoại & Email -->
         <div class="form-row">
           <div class="form-group">
             <label for="phone" class="required">Số điện thoại</label>
@@ -118,34 +123,54 @@
             <input type="email" id="email" name="email" inputmode="email" required>
           </div>
         </div>
-
-        <!-- Lớp (dropdown required) & Niên khóa (dropdown required) -->
+      
+        <!-- Lớp & Niên khóa -->
         <div class="form-row">
           <div class="form-group">
             <label for="class" class="required">Lớp</label>
             <select id="class" name="class" required>
-              <option value="" disabled selected>-- Chọn --</option>
+              <option value="" disabled selected>-- Chọn theo niên khóa của bạn --</option>
               <option>Toán</option>
-              <option>Lý</option>
-              <option>Hóa</option>
-              <option>Sinh</option>
+              <option>Toán 1</option>
+              <option>Toán 2</option>
               <option>Tin</option>
+              <option>Lý</option>
+              <option>Hoá</option>
+              <option>Sinh</option>
+              <option>Sinh 1</option>
+              <option>Sinh 2</option>
               <option>Anh</option>
+              <option>Anh 1</option>
+              <option>Anh 2</option>
               <option>Văn</option>
-              <option>Sử</option>
               <option>Địa</option>
-              <option>Không chuyên</option>
-              <option>Khác</option>
+              <option>Không Chuyên (K)</option>
+              <option>Không Chuyên 1 (K1)</option>
+              <option>Không Chuyên 2 (K2)</option>
+              <option>Anh-Pháp</option>
+              <option>Hoá-Sinh</option>
             </select>
           </div>
           <div class="form-group">
             <label for="graduationYear" class="required">Niên khóa</label>
-            <select id="graduationYear" name="graduationYear" required>
-              <!-- populate bằng JS: 1992 - 1995 ... 2022 - 2025 -->
-            </select>
+            <select id="graduationYear" name="graduationYear" required></select>
           </div>
         </div>
-
+      
+        <!-- Tham gia (checklist) -->
+        <fieldset class="form-row sessions-fieldset">
+          <legend class="required">Tham gia</legend>
+          <label class="checkbox">
+            <input type="checkbox" id="sessCeremony" name="sessions" value="ceremony"> Phần Lễ (sáng Thứ 7)
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="sessFestival" name="sessions" value="festival"> Phần Hội (chiều tối Thứ 7)
+          </label>
+          <label class="checkbox">
+            <input type="checkbox" id="sessSports" name="sessions" value="sports"> Giao lưu thể thao (sáng Chủ Nhật)
+          </label>
+        </fieldset>
+      
         <!-- Lời nhắn (optional) -->
         <div class="form-row">
           <div class="form-group full">
@@ -153,10 +178,11 @@
             <textarea id="message" name="message" rows="3" placeholder="(Không bắt buộc)"></textarea>
           </div>
         </div>
-
+      
         <button type="submit" class="submit-button">Gửi xác nhận</button>
         <div id="formMessage" class="form-message" role="status" aria-live="polite"></div>
       </form>
+      
     </section>
 
     <div class="section-divider"><span>Hình ảnh kỷ niệm</span></div>

@@ -66,41 +66,63 @@ document.addEventListener('DOMContentLoaded',()=>{
   setInterval(updateCountdown, 1000);
 
   // ===== Stats (capacity) =====
+  const txtCeremony = document.getElementById('txtCeremony');
+  const txtFestival = document.getElementById('txtFestival');
+  const txtSports   = document.getElementById('txtSports');
+  const barCeremony = document.getElementById('barCeremony');
+  const barFestival = document.getElementById('barFestival');
+  const barSports   = document.getElementById('barSports');
+
+  function colorFromPercent(p){
+    // 0% -> hue 120 (green), 100% -> hue 0 (red)
+    const hue = Math.max(0, Math.min(120, 120 - (p * 1.2)));
+    return `hsl(${hue}, 65%, 40%)`;
+  }
+
   async function refreshStats(){
     try{
       const r = await fetch('/stats', {cache:'no-store'});
       if(!r.ok) return;
       const data = await r.json();
-      const cap = data.capacityMorning || 400;
-      const morning = data.morning || 0;
-      const afternoon = data.afternoon || 0;
+      const cap = data.capacityCeremony || 400;
+      const ceremony = data.ceremony || 0;
+      const festival = data.festival || 0;
+      const sports   = data.sports   || 0;
 
-      const p = Math.max(0, Math.min(100, Math.round(morning*100/cap)));
-      const barMorning   = document.getElementById('barMorning');
-      const barAfternoon = document.getElementById('barAfternoon');
-      const txtMorning   = document.getElementById('txtMorning');
-      const txtAfternoon = document.getElementById('txtAfternoon');
+      const p = Math.max(0, Math.min(100, Math.round(ceremony*100/cap)));
 
-      if(barMorning){ barMorning.style.width = p + '%'; }
-      if(txtMorning){ txtMorning.textContent = `${morning} / ${cap}`; }
-      if(barAfternoon){ barAfternoon.style.width = '100%'; }
-      if(txtAfternoon){ txtAfternoon.textContent = `${afternoon}`; }
-
-      // If morning already full, disable the option on UI
-      const sessionSel = document.getElementById('session');
-      if (sessionSel && (morning >= cap)){
-        const optMorning = [...sessionSel.options].find(o=>o.value==='Sáng');
-        if (optMorning) optMorning.disabled = true;
+      // Ceremony: width + màu theo %
+      if (txtCeremony) txtCeremony.textContent = `${ceremony} / ${cap}`;
+      if (barCeremony){
+        barCeremony.style.width = p + '%';
+        barCeremony.style.backgroundColor = colorFromPercent(p);
       }
+
+      // Festival/Sports: luôn full width + xanh lá
+      if (txtFestival) txtFestival.textContent = `${festival}`;
+      if (barFestival){
+        barFestival.style.width = '100%';
+        barFestival.style.backgroundColor = '#2e7d32';
+      }
+
+      if (txtSports)   txtSports.textContent   = `${sports}`;
+      if (barSports){
+        barSports.style.width = '100%';
+        barSports.style.backgroundColor = '#2e7d32';
+      }
+
+      // Disable ceremony nếu đã full
+      const chkCeremony = document.getElementById('sessCeremony');
+      if (chkCeremony) chkCeremony.disabled = ceremony >= cap;
     }catch(e){ /* silent */ }
   }
   refreshStats();
-  setInterval(refreshStats, 15000);
+  setInterval(refreshStats, 30000);
 
   // ===== Populate Niên khóa options (1992-1995 ... 2022-2025) =====
   const gySel = document.getElementById('graduationYear');
   if(gySel){
-    const start = 1992, endInclusive = 2025; // so we render 1992-1995 ... 2022-2025
+    const start = 1992, endInclusive = 2025; // 1992-1995 ... 2022-2025
     const frag = document.createDocumentFragment();
     const ph = document.createElement('option');
     ph.value=''; ph.textContent='-- Chọn --'; ph.disabled=true; ph.selected=true;
@@ -117,7 +139,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // ===== Gallery (Hình ảnh kỷ niệm) =====
   const GALLERY_BASE = 'images/gallery';
-  const GALLERY_PAGE_COUNT = 5; // adjust to actual number of folders page1..pageN
+  const GALLERY_PAGE_COUNT = 5;
   const AUTO_INTERVAL_MS = 6000;
   const IMAGES_PER_PAGE = 4;
 
@@ -181,11 +203,8 @@ document.addEventListener('DOMContentLoaded',()=>{
     const imgs = [];
     for(let n=1;n<=IMAGES_PER_PAGE;n++){ imgs.push(`${folder}/${n}.jpg`); }
     pages[idx]=imgs;
-
-    // prefetch next page's first image
     const nextFirst = `${GALLERY_BASE}/page${((idx+1)%GALLERY_PAGE_COUNT)+1}/1.jpg`;
     const pre=new Image(); pre.loading='eager'; pre.src=nextFirst;
-
     return imgs;
   }
   function nextPage(){ renderPage(current+1); }
@@ -227,61 +246,48 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateDots();
   startAuto();
 
-  // ===== Form validation, submit, and QR modal handling =====
-  const form = document.getElementById('registrationForm');
-  const messageDiv = document.getElementById('formMessage');
-  const btnSubmit = form ? form.querySelector('button[type="submit"]') : null;
-
-  // Modal elements (may not exist if HTML not updated)
+  // ===== QR modal elements (nếu bạn đang dùng popup QR) =====
   const modal           = document.getElementById('qrModal');
   const btnDownloadQR   = document.getElementById('btnDownloadQR');
   const btnCopyLink     = document.getElementById('btnCopyLink');
   const qrImage         = document.getElementById('qrImage');
   const qrClose         = document.getElementById('qrClose');
   const ticketLinkText  = document.getElementById('ticketLinkText');
-  let   qrSaved         = false; // set true when user downloads or copies link
+  let   qrSaved         = false;
 
   function openModal(){ if(!modal) return; modal.hidden=false; document.body.style.overflow='hidden'; }
   function closeModal(){ if(!modal) return; modal.hidden=true; document.body.style.overflow=''; }
-  function showError(msg){ if(!messageDiv) return; messageDiv.textContent=msg; messageDiv.style.color='red'; }
-  function showSuccess(msg){ if(!messageDiv) return; messageDiv.textContent=msg; messageDiv.style.color='green'; }
+  function showError(msg){ const m=document.getElementById('formMessage'); if(m){ m.textContent=msg; m.style.color='red'; } }
+  function showSuccess(msg){ const m=document.getElementById('formMessage'); if(m){ m.textContent=msg; m.style.color='green'; } }
 
-  // Warn on closing if QR not saved
   window.addEventListener('beforeunload',(e)=>{
-    if(modal && !modal.hidden && !qrSaved){
-      e.preventDefault();
-      e.returnValue='Hãy lưu ảnh QR hoặc copy link vé trước khi rời trang.';
-    }
-  });
-  window.addEventListener('popstate',()=>{
-    if(modal && !modal.hidden && !qrSaved){
-      if(!confirm('Hãy lưu ảnh QR hoặc copy link vé trước khi rời trang.')){ history.pushState(null,''); }
-    }
+    if(modal && !modal.hidden && !qrSaved){ e.preventDefault(); e.returnValue='Hãy lưu ảnh QR hoặc copy link vé trước khi rời trang.'; }
   });
   if (qrClose){
     qrClose.addEventListener('click',()=>{
-      if(!qrSaved){
-        if(!confirm('Bạn đã lưu ảnh QR hoặc copy link chưa?')) return;
-      }
+      if(!qrSaved && !confirm('Bạn đã lưu ảnh QR hoặc copy link chưa?')) return;
       closeModal();
     });
   }
-  if (btnDownloadQR){
-    btnDownloadQR.addEventListener('click',()=>{ qrSaved = true; });
-  }
+  if (btnDownloadQR){ btnDownloadQR.addEventListener('click',()=>{ qrSaved = true; }); }
   if (btnCopyLink){
     btnCopyLink.addEventListener('click', async ()=>{
       try {
-        // Prefer absolute URL from dataset; only prepend origin if relative path
         let urlToCopy = (ticketLinkText?.dataset?.url) || ticketLinkText?.textContent || '';
-        if (!/^https?:\/\//i.test(urlToCopy)) {
-          urlToCopy = location.origin + urlToCopy;
-        }
+        if (!/^https?:\/\//i.test(urlToCopy)) urlToCopy = location.origin + urlToCopy;
         await navigator.clipboard.writeText(urlToCopy);
         qrSaved = true;
         alert('Đã copy link vé');
       } catch(_){ alert('Không copy được link.'); }
     });
+  }
+
+  // ===== Form validation & submit (sessions: checklist) =====
+  const form = document.getElementById('registrationForm');
+  const btnSubmit = form ? form.querySelector('button[type="submit"]') : null;
+
+  function getSelectedSessions(){
+    return Array.from(document.querySelectorAll('input[name="sessions"]:checked')).map(i=>i.value);
   }
 
   if (form){
@@ -294,24 +300,27 @@ document.addEventListener('DOMContentLoaded',()=>{
 
       // Collect
       const name = form.name.value.trim();
-      const session = form.session.value;
       const phone = form.phone.value.trim();
       const email = (form.email.value||'').trim();
       const className = form.class.value;
       const graduationYear = form.graduationYear.value;
       const message = (form.message.value||'').trim();
+      const sessions = getSelectedSessions(); // ['ceremony','festival','sports']
 
       // Validate
       const emailOk = /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
       const phoneOk = (/[0-9]{7,15}/).test(phone.replace(/[^0-9]/g,''));
-      if(!name||!session||!phone||!email||!className||!graduationYear){
+      if(!name||!phone||!email||!className||!graduationYear){
         showError('Vui lòng điền đầy đủ các trường có dấu *'); return;
+      }
+      if (!sessions.length){
+        showError('Vui lòng chọn ít nhất một mục trong "Tham gia".'); return;
       }
       if(!emailOk){ showError('Email chưa hợp lệ'); return; }
       if(!phoneOk){ showError('Số điện thoại chưa hợp lệ'); return; }
 
       if(btnSubmit){ btnSubmit.disabled=true; btnSubmit.dataset.oldText = btnSubmit.textContent; btnSubmit.textContent='Đang gửi...'; }
-      const payload = { name, session, phone, email, className, graduationYear, message };
+      const payload = { name, phone, email, className, graduationYear, message, sessions };
 
       try{
         const res = await fetch('/submit',{
@@ -326,26 +335,20 @@ document.addEventListener('DOMContentLoaded',()=>{
           form.reset();
           refreshStats();
 
-          // Expect these fields from server.js
-          const ticketId = json.ticketId;
-          const qrUrl    = json.qrUrl;
-          const ticketUrl= json.ticketUrl;
-
-          if (qrImage)        { qrImage.src = qrUrl; qrImage.alt = `QR ${ticketId}`; }
-          if (btnDownloadQR)  { btnDownloadQR.href = qrUrl; btnDownloadQR.download = `ticket-${ticketId}.png`; }
-          if (ticketLinkText) {
-            ticketLinkText.dataset.url = ticketUrl; // lưu URL tuyệt đối để copy
-            ticketLinkText.innerHTML = `<a href="${ticketUrl}" target="_blank" rel="noopener">${ticketUrl}</a>`;
+          // Nếu backend trả QR
+          if (json.ticketId && json.qrUrl && json.ticketUrl){
+            if (qrImage)        { qrImage.src = json.qrUrl; qrImage.alt = `QR ${json.ticketId}`; }
+            if (btnDownloadQR)  { btnDownloadQR.href = json.qrUrl; btnDownloadQR.download = `ticket-${json.ticketId}.png`; }
+            if (ticketLinkText) { ticketLinkText.dataset.url = json.ticketUrl; ticketLinkText.innerHTML = `<a href="${json.ticketUrl}" target="_blank" rel="noopener">${json.ticketUrl}</a>`; }
+            qrSaved = false;
+            openModal();
           }
-
-          qrSaved = false;
-          openModal();
-
         } else if (json.status==='full'){
-          showError('Buổi sáng đã đủ 400 chỗ. Vui lòng chọn Buổi chiều.');
-          // Disable morning option immediately
-          const optMorning = [...form.session.options].find(o=>o.value==='Sáng');
-          if (optMorning) optMorning.disabled = true;
+          // ceremony full
+          showError('Phần Lễ (sáng Thứ 7) đã đủ 400 chỗ. Vui lòng bỏ chọn mục này hoặc chọn phần khác.');
+          // disable checkbox ceremony ngay
+          const chkCeremony = document.getElementById('sessCeremony');
+          if (chkCeremony) chkCeremony.disabled = true;
         } else {
           showError(json.message || 'Đã xảy ra lỗi khi gửi thông tin.');
         }
