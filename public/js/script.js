@@ -15,11 +15,24 @@ document.addEventListener('DOMContentLoaded',()=>{
   }
   async function playLoud(){
     try{
+      // Lazy-attach the src on first play to avoid network before user gesture
+      if (!audio.getAttribute('src')) {
+        const realSrc = audio.getAttribute('data-src');
+        if (realSrc) {
+          audio.setAttribute('src', realSrc);
+          // Ensure it re-reads source without starting a download until play()
+          audio.load();
+        }
+      }
+  
       audio.muted = false;
       audio.volume = 1.0;
-      if (audio.paused){ await audio.play(); }
+  
+      if (audio.paused){
+        await audio.play();   // user gesture already occurred -> allowed
+      }
       started = true;
-    }catch(_){}
+    } catch (_){}
     syncIcon();
   }
   function firstClickPlay(){
