@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       const r = await fetch('/stats', {cache:'no-store'});
       if(!r.ok) return;
       const data = await r.json();
-      const cap = data.capacityCeremony || 400;
+      const cap = data.capacityCeremony || 200;
       const ceremony = data.ceremony || 0;
       const festival = data.festival || 0;
       const sports   = data.sports   || 0;
@@ -353,7 +353,7 @@ document.addEventListener('DOMContentLoaded',()=>{
             openModal();
           }
         } else if (json.status==='full'){
-          showError('Phần Lễ (sáng Thứ 7) đã đủ 400 chỗ. Vui lòng bỏ chọn mục này hoặc chọn phần khác.');
+          showError('Phần Lễ (sáng Thứ 7) đã đủ 200 chỗ. Vui lòng bỏ chọn mục này hoặc chọn phần khác.');
           const chkCeremony = document.getElementById('sessCeremony');
           if (chkCeremony) chkCeremony.disabled = true;
         } else {

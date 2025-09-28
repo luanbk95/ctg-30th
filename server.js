@@ -103,11 +103,11 @@ app.post('/submit', async (req, res) => {
 
   const regs = readRegs();
 
-  // Limit ceremony (sáng Thứ 7) to 400
+  // Limit ceremony (sáng Thứ 7) to 200
   if (sessions.includes('ceremony')){
     const ceremonyCount = regs.reduce((acc, r) => acc + (Array.isArray(r.sessions) && r.sessions.includes('ceremony') ? 1 : 0), 0);
-    if (ceremonyCount >= 400){
-      return res.status(409).json({ status: 'full', message: 'Phần Lễ (sáng Thứ 7) đã đủ 400 chỗ.' });
+    if (ceremonyCount >= 200){
+      return res.status(409).json({ status: 'full', message: 'Phần Lễ (sáng Thứ 7) đã đủ 200 chỗ.' });
     }
   }
 
@@ -226,7 +226,7 @@ app.get('/stats', (req, res) => {
   const ceremony = regs.reduce((acc, r) => acc + (Array.isArray(r.sessions) && r.sessions.includes('ceremony') ? 1 : 0), 0);
   const festival = regs.reduce((acc, r) => acc + (Array.isArray(r.sessions) && r.sessions.includes('festival') ? 1 : 0), 0);
   const sports   = regs.reduce((acc, r) => acc + (Array.isArray(r.sessions) && r.sessions.includes('sports')   ? 1 : 0), 0);
-  res.json({ ceremony, festival, sports, capacityCeremony: 400 });
+  res.json({ ceremony, festival, sports, capacityCeremony: 200 });
 });
 
 // ===== Admin UI & data =====
