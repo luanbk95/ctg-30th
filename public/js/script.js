@@ -145,7 +145,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // ===== Gallery (Hình ảnh kỷ niệm) =====
   const GALLERY_BASE = 'images/gallery';
-  const GALLERY_PAGE_COUNT = 15; // chỉnh theo số thư mục pageN
+  const GALLERY_PAGE_COUNT = 16; // chỉnh theo số thư mục pageN
   const IMAGES_PER_PAGE = 4;
 
   const grid       = document.getElementById('galleryGrid');
