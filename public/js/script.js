@@ -1,5 +1,9 @@
 // File: public/js/script.js
 document.addEventListener('DOMContentLoaded',()=>{
+  // Clear honeypot just in case the browser/extension auto-fills it
+  const hpEl = document.getElementById('hpToken');
+  if (hpEl) hpEl.value = '';
+
   // ===== Audio logic (click-to-start, mute toggle) =====
   const audio = document.getElementById('backgroundAudio');
   const audioControl = document.getElementById('audioControl');
@@ -318,8 +322,12 @@ document.addEventListener('DOMContentLoaded',()=>{
       e.preventDefault();
 
       // Honeypot
-      const hp = document.getElementById('website');
-      if(hp && hp.value){ showError('Có lỗi xảy ra.'); return; }
+      const hp = document.getElementById('hpToken');
+      const hpVal = hp ? (hp.value || '').trim() : '';
+      if (hpVal.length > 0) {
+        showError('Có lỗi nghi vấn bot, thử lại với chế độ Ẩn danh/trình duyệt khác.');
+        return;
+      }
 
       // Collect
       const name = form.name.value.trim();

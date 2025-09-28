@@ -73,7 +73,9 @@ function writeRegs(arr){
 // ===== Submit: save record + generate ticket + QR =====
 app.post('/submit', async (req, res) => {
   // Honeypot
-  if (req.body.website) return res.status(400).json({ status: 'error', message: 'Bad request' });
+  if ((req.body.hpToken || '').trim()) {
+    return res.status(400).json({ status: 'error', message: 'Bad request' });
+  }
 
   // Fields
   const name = sanitize(req.body.name, 120);
