@@ -120,7 +120,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fafafa;
 .sessions-fieldset input[type="checkbox"]{margin-top:2px;transform:translateY(1px)}
 
 /* =========================
-   Stats (Đã đăng ký)
+   Stats (register list)
 ========================= */
 .stats-wrap{border:2px solid #1d5fbf;border-radius:12px;padding:16px;box-shadow:0 6px 16px rgba(0,0,0,.06)}
 .stats-title{color:#0a3c5a;margin-bottom:10px}
@@ -205,7 +205,7 @@ body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fafafa;
 /* Footer contact note (bottom-left, inside page flow) */
 .contact-note{
   max-width:980px;
-  margin: 28px auto 36px;   /* tạo khoảng thở cuối trang */
+  margin: 28px auto 36px;
   padding: 0 20px;
   color: var(--ink);
   font-size: 0.98rem;
@@ -228,24 +228,3 @@ body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fafafa;
   .mob-br { display: inline; }
   .hero-sub, .hero-title { line-height: 1.2; }
 }
-
-
-
-/* Trial/temporary notice box */
-/* Trial/temporary notice box */
-.notice-beta{
-  margin: 16px 0 24px;
-  padding: 12px 16px;
-  border: 1px solid #fca5a5;  /* đỏ nhạt */
-  border-left: 4px solid #dc2626; /* nhấn mạnh */
-  border-radius: 8px;
-  background: #fff5f5;        /* nền hồng rất nhạt */
-  color: #b91c1c;             /* chữ đỏ */
-  font-size: 0.98rem;
-  line-height: 1.55;
-}
-.notice-beta strong{ font-weight: 700; }
-/* Trial/temporary notice box */
-/* Trial/temporary notice box */
-
-

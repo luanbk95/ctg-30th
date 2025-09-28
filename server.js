@@ -1,4 +1,3 @@
-// Execute on: your deployment server (file path: server.js)
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
@@ -9,8 +8,7 @@ const crypto = require('crypto');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-// Ví dụ: https://ctg.tekonologia.com (đừng để localhost khi muốn quét QR bằng Google Lens)
-const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://ctg.tekonologia.com';
+const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL || 'https://30years.chuyentiengiang.com';
 
 // ===== Security & basics =====
 app.use(helmet());
@@ -105,7 +103,7 @@ app.post('/submit', async (req, res) => {
 
   const regs = readRegs();
 
-  // Limit ceremony (sáng Thứ 7) to 200
+  // Limit ceremony (limit sáng Thứ 7) to 200
   if (sessions.includes('ceremony')){
     const ceremonyCount = regs.reduce((acc, r) => acc + (Array.isArray(r.sessions) && r.sessions.includes('ceremony') ? 1 : 0), 0);
     if (ceremonyCount >= 200){
@@ -140,7 +138,7 @@ app.post('/submit', async (req, res) => {
   const ticketUrl = `${origin}/ticket/${ticketId}`;
   const qrPath = path.join(qrDir, `${ticketId}.png`);
   try {
-    // Encode absolute URL for direct open in Google Lens
+    // Encode absolute URL for direct open in Google Lens / Zalo
     await QRCode.toFile(qrPath, ticketUrl, { type: 'png', margin: 1, scale: 6 });
   } catch (e) {
     return res.status(500).json({ status: 'error', message: 'Không tạo được mã QR.' });

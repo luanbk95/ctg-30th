@@ -6,7 +6,7 @@ services:
     volumes:
       - ./:/app
     ports:
-      - "8080:3000"
+      - "38080:3000"
     command: sh -c "npm install && npm start"
     environment:
       - NODE_ENV=production

@@ -1,4 +1,8 @@
 // File: public/js/script.js
+// *********************************
+// Hi there, for techinical challenge, contact https://www.linkedin.com/in/luan-phan-01a4b71b6/
+// *********************************
+
 document.addEventListener('DOMContentLoaded',()=>{
   // Clear honeypot just in case the browser/extension auto-fills it
   const hpEl = document.getElementById('hpToken');
@@ -82,7 +86,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  // ===== Stats (capacity 3 mục) =====
+  // ===== Stats =====
   const txtCeremony = document.getElementById('txtCeremony');
   const txtFestival = document.getElementById('txtFestival');
   const txtSports   = document.getElementById('txtSports');
@@ -125,7 +129,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   refreshStats();
   setInterval(refreshStats, 30000);
 
-  // ===== Populate Niên khóa options (1992-1995 ... 2022-2025) =====
+  // ===== Populate graduationYear options (1992-1995 ... 2022-2025) =====
   const gySel = document.getElementById('graduationYear');
   if(gySel){
     const start = 1992, endInclusive = 2025; // 1992-1995 ... 2022-2025
@@ -145,7 +149,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // ===== Gallery (Hình ảnh kỷ niệm) =====
   const GALLERY_BASE = 'images/gallery';
-  const GALLERY_PAGE_COUNT = 16; // chỉnh theo số thư mục pageN
+  const GALLERY_PAGE_COUNT = 16;
   const IMAGES_PER_PAGE = 4;
 
   const grid       = document.getElementById('galleryGrid');
@@ -175,7 +179,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   function buildDomCardsFor(idx){
     if (pagesDom[idx]) return pagesDom[idx];
-    // Chỉ khi thực sự cần render mới tạo DOM + gán src (=> lúc đó mới tải ảnh)
+    // Chỉ khi thực sự cần render mới tạo DOM + gán src (lúc đó mới tải ảnh)
     const cards = buildUrlsFor(idx).map(src=>{
       const card = document.createElement('div');
       card.className='gallery-card';
@@ -235,7 +239,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     renderPage(0); // lúc này mới GET 4 ảnh page1
   }, {once:true});
 
-  // Lightbox + Back trên mobile để thoát
+  // Lightbox + Back on mobile to exit full view
   let lightbox=null;
   function openLightbox(src){
     if(!lightbox){
@@ -273,7 +277,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   });
 
-  // ===== QR modal elements (nếu đang dùng popup QR) =====
+  // ===== QR modal elements =====
   const modal           = document.getElementById('qrModal');
   const btnDownloadQR   = document.getElementById('btnDownloadQR');
   const btnCopyLink     = document.getElementById('btnCopyLink');

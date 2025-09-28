@@ -83,12 +83,10 @@ button:hover {
   word-break: break-word;
 }
 
-/* Gợi ý width cho các cột */
-.admin-table th:nth-child(2){width:160px}  /* Thời gian */
-.admin-table th:nth-child(8){width:360px}  /* Lời nhắn */
-.admin-table th:nth-child(10){width:260px} /* Ticket/ID */
+.admin-table th:nth-child(2){width:160px}
+.admin-table th:nth-child(8){width:360px}
+.admin-table th:nth-child(10){width:260px}
 
-/* STT cột đầu tiên: co lại */
 .admin-table th:nth-child(1),
 .admin-table td:nth-child(1){
   width: 50px;

@@ -43,11 +43,11 @@
     const res = await fetch('/registrations', {cache:'no-store'});
     if(!res.ok){ alert('Không tải được dữ liệu'); return; }
     data = await res.json();
-    data.sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||'')); // mới nhất lên đầu
+    data.sort((a,b) => (b.timestamp||'').localeCompare(a.timestamp||''));
     render();
   }
 
-  // ===== Export CSV (không có User-Agent, có STT) =====
+  // ===== Export CSV =====
   function toCsvRow(arr){
     return arr.map(v => {
       const s = String(v ?? '');
