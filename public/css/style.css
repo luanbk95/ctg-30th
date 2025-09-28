@@ -44,11 +44,11 @@ body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fafafa;
 @media (max-width:768px){
   .hero{min-height:70vh;background-attachment:scroll;background-position:center 20%}
   .hero-title{font-size:3.12rem}
-  .hero-sub{font-size:1.43rem}
+  .hero-sub{font-size:1.365rem}
   .hero-date{font-size:1.365rem}
 }
 @media (max-width:480px){
-  .hero-title{font-size:2.73rem}
+  .hero-title{font-size:2.2rem}
 }
 
 /* =========================
@@ -217,6 +217,16 @@ body{font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fafafa;
 }
 .contact-note a:hover{
   text-decoration: none;
+}
+
+
+.nb { white-space: nowrap; }
+
+.mob-br { display: none; }
+
+@media (max-width: 768px) {
+  .mob-br { display: inline; }
+  .hero-sub, .hero-title { line-height: 1.2; }
 }
 
 
