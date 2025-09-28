@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   updateCountdown();
   setInterval(updateCountdown, 1000);
 
-  // ===== Stats (capacity) =====
+  // ===== Stats (capacity 3 mục) =====
   const txtCeremony = document.getElementById('txtCeremony');
   const txtFestival = document.getElementById('txtFestival');
   const txtSports   = document.getElementById('txtSports');
@@ -74,7 +74,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   const barSports   = document.getElementById('barSports');
 
   function colorFromPercent(p){
-    const hue = Math.max(0, Math.min(120, 120 - (p * 1.2))); // 0% green -> 100% red
+    // 0% -> xanh lá (120), 100% -> đỏ (0)
+    const hue = Math.max(0, Math.min(120, 120 - (p * 1.2)));
     return `hsl(${hue}, 65%, 40%)`;
   }
 
@@ -95,18 +96,10 @@ document.addEventListener('DOMContentLoaded',()=>{
         barCeremony.style.width = p + '%';
         barCeremony.style.backgroundColor = colorFromPercent(p);
       }
-
       if (txtFestival) txtFestival.textContent = `${festival}`;
-      if (barFestival){
-        barFestival.style.width = '100%';
-        barFestival.style.backgroundColor = '#2e7d32';
-      }
-
+      if (barFestival){ barFestival.style.width = '100%'; barFestival.style.backgroundColor = '#2e7d32'; }
       if (txtSports)   txtSports.textContent   = `${sports}`;
-      if (barSports){
-        barSports.style.width = '100%';
-        barSports.style.backgroundColor = '#2e7d32';
-      }
+      if (barSports)  { barSports.style.width  = '100%'; barSports.style.backgroundColor  = '#2e7d32'; }
 
       const chkCeremony = document.getElementById('sessCeremony');
       if (chkCeremony) chkCeremony.disabled = ceremony >= cap;
@@ -118,7 +111,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   // ===== Populate Niên khóa options (1992-1995 ... 2022-2025) =====
   const gySel = document.getElementById('graduationYear');
   if(gySel){
-    const start = 1992, endInclusive = 2025;
+    const start = 1992, endInclusive = 2025; // 1992-1995 ... 2022-2025
     const frag = document.createDocumentFragment();
     const ph = document.createElement('option');
     ph.value=''; ph.textContent='-- Chọn --'; ph.disabled=true; ph.selected=true;
@@ -135,73 +128,71 @@ document.addEventListener('DOMContentLoaded',()=>{
 
   // ===== Gallery (Hình ảnh kỷ niệm) =====
   const GALLERY_BASE = 'images/gallery';
-  const GALLERY_PAGE_COUNT = 15; // cập nhật theo thực tế
-  const AUTO_INTERVAL_MS = 6000;
+  const GALLERY_PAGE_COUNT = 15; // chỉnh theo số thư mục pageN
   const IMAGES_PER_PAGE = 4;
 
-  const grid = document.getElementById('galleryGrid');
-  const dotsWrap = document.getElementById('galDots');
-  const btnPrev = document.getElementById('galPrev');
-  const btnNext = document.getElementById('galNext');
+  const grid       = document.getElementById('galleryGrid');
+  const dotsWrap   = document.getElementById('galDots');
+  const btnPrev    = document.getElementById('galPrev');
+  const btnNext    = document.getElementById('galNext');
   const galleryFrame = document.querySelector('.gallery-frame');
 
-  // Cache: src và DOM theo page (chỉ tạo 1 lần, tái sử dụng khi chuyển trang)
-  const pagesSrc = new Array(GALLERY_PAGE_COUNT);
-  const pagesDom = new Array(GALLERY_PAGE_COUNT);
+  // Cache: chỉ lưu URL trước; DOM card sẽ tạo khi render trang lần đầu
+  const pagesSrc = new Array(GALLERY_PAGE_COUNT); // string[]
+  const pagesDom = new Array(GALLERY_PAGE_COUNT); // HTMLElement[] (gallery-card)
   let current = 0;
-  let timer = null;
-  let userInteractedGallery = false;
 
   function fileCaption(path){
     const name = path.split('/').pop().split('?')[0];
     return name.replace(/\.(jpg|jpeg|png|webp)$/i,'').replace(/[._-]+/g,' ');
   }
-  function createCard(src){
-    const card = document.createElement('div');
-    card.className = 'gallery-card';
-    const wrap = document.createElement('div');
-    wrap.className = 'imgwrap';
-    const img = document.createElement('img');
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.src = src; // tải 1 lần; sau đó chỉ move node
-    img.alt = fileCaption(src);
-    wrap.appendChild(img);
-    card.appendChild(wrap);
-    const cap = document.createElement('div');
-    cap.className = 'gallery-caption';
-    cap.textContent = fileCaption(src);
-    card.appendChild(cap);
-    card.addEventListener('click',()=>{ userInteracted(); openLightbox(src); });
-    return card;
+
+  function buildUrlsFor(idx){
+    if (pagesSrc[idx]) return pagesSrc[idx];
+    const folder = `${GALLERY_BASE}/page${idx+1}`;
+    const urls = [];
+    for(let n=1;n<=IMAGES_PER_PAGE;n++){ urls.push(`${folder}/${n}.jpg`); }
+    pagesSrc[idx] = urls;
+    return urls;
   }
-  function ensurePage(idx){
+
+  function buildDomCardsFor(idx){
     if (pagesDom[idx]) return pagesDom[idx];
-
-    if (!pagesSrc[idx]){
-      const folder = `${GALLERY_BASE}/page${idx+1}`;
-      const urls = [];
-      for(let n=1;n<=IMAGES_PER_PAGE;n++){ urls.push(`${folder}/${n}.jpg`); }
-      pagesSrc[idx] = urls;
-    }
-    pagesDom[idx] = pagesSrc[idx].map(u => createCard(u));
-
-    // Prefetch nhẹ: chỉ ảnh đầu của trang kế tiếp
-    const nextFirst = `${GALLERY_BASE}/page${((idx+1)%GALLERY_PAGE_COUNT)+1}/1.jpg`;
-    const pre = new Image(); pre.loading='eager'; pre.src = nextFirst;
-
-    return pagesDom[idx];
+    // Chỉ khi thực sự cần render mới tạo DOM + gán src (=> lúc đó mới tải ảnh)
+    const cards = buildUrlsFor(idx).map(src=>{
+      const card = document.createElement('div');
+      card.className='gallery-card';
+      const wrap=document.createElement('div');
+      wrap.className='imgwrap';
+      const img=document.createElement('img');
+      img.loading='lazy';
+      img.decoding='async';
+      img.src = src;                // tải lần đầu khi page được mở
+      img.alt = fileCaption(src);
+      wrap.appendChild(img);
+      card.appendChild(wrap);
+      const cap=document.createElement('div');
+      cap.className='gallery-caption';
+      cap.textContent=fileCaption(src);
+      card.appendChild(cap);
+      card.addEventListener('click',()=>openLightbox(src));
+      return card;
+    });
+    pagesDom[idx] = cards;
+    return cards;
   }
+
   function renderPage(index){
     if(index<0) return;
     current = (index + GALLERY_PAGE_COUNT) % GALLERY_PAGE_COUNT;
-    const cards = ensurePage(current);
+    const cards = buildDomCardsFor(current);
     if (grid){
-      grid.innerHTML = '';
-      cards.forEach(card => grid.appendChild(card)); // move từ cache
+      grid.innerHTML='';
+      cards.forEach(c=>grid.appendChild(c));
     }
     updateDots();
   }
+
   function updateDots(){
     if (!dotsWrap) return;
     dotsWrap.innerHTML='';
@@ -209,26 +200,25 @@ document.addEventListener('DOMContentLoaded',()=>{
       const dot=document.createElement('button');
       dot.className='gal-dot'+(i===current?' active':'');
       dot.setAttribute('aria-label',`Trang ${i+1}`);
-      dot.addEventListener('click',()=>{ userInteracted(); renderPage(i); });
+      dot.addEventListener('click',()=>{ renderPage(i); });
       dotsWrap.appendChild(dot);
     }
   }
+
   function nextPage(){ renderPage(current+1); }
   function prevPage(){ renderPage(current-1); }
 
-  function startAuto(){ if (userInteractedGallery) return; stopAuto(); timer=setInterval(nextPage,AUTO_INTERVAL_MS); }
-  function stopAuto(){ if(timer){ clearInterval(timer); timer=null; } }
-  function userInteracted(){ userInteractedGallery = true; stopAuto(); }
+  if (btnNext) btnNext.addEventListener('click', nextPage);
+  if (btnPrev) btnPrev.addEventListener('click', prevPage);
 
-  if (btnNext) btnNext.addEventListener('click',()=>{ userInteracted(); nextPage(); });
-  if (btnPrev) btnPrev.addEventListener('click',()=>{ userInteracted(); prevPage(); });
-  if (galleryFrame){
-    ['pointerdown','wheel','touchstart','keydown'].forEach(evt=>{
-      galleryFrame.addEventListener(evt, userInteracted, {passive:true});
-    });
-  }
+  // Không tự động chuyển trang; không prefetch.
+  // Ưu tiên tải tài nguyên khác trước: chỉ render page1 sau khi window đã load xong.
+  window.addEventListener('load', ()=>{
+    updateDots();
+    renderPage(0); // lúc này mới GET 4 ảnh page1
+  }, {once:true});
 
-  // Lightbox + back-to-close trên mobile
+  // Lightbox + Back trên mobile để thoát
   let lightbox=null;
   function openLightbox(src){
     if(!lightbox){
@@ -243,7 +233,7 @@ document.addEventListener('DOMContentLoaded',()=>{
       Object.assign(img.style,{maxWidth:'92%',maxHeight:'92%',boxShadow:'0 10px 30px rgba(0,0,0,.5)',borderRadius:'8px'});
       lightbox.appendChild(img);
       lightbox.addEventListener('click',()=>{ closeLightbox(); });
-      document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && isLightboxOpen()){ closeLightbox(); } });
+      document.addEventListener('keydown',(e)=>{ if(e.key==='Escape' && isLightboxOpen()) closeLightbox(); });
       document.body.appendChild(lightbox);
     }
     lightbox.querySelector('img').src=src;
@@ -266,11 +256,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }
   });
 
-  // --- INIT: chỉ tải page 1 lúc đầu ---
-  renderPage(0);   // ensurePage(0) được gọi bên trong
-  startAuto();
-
-  // ===== QR modal elements (nếu bạn đang dùng popup QR) =====
+  // ===== QR modal elements (nếu đang dùng popup QR) =====
   const modal           = document.getElementById('qrModal');
   const btnDownloadQR   = document.getElementById('btnDownloadQR');
   const btnCopyLink     = document.getElementById('btnCopyLink');
@@ -318,21 +304,28 @@ document.addEventListener('DOMContentLoaded',()=>{
     form.addEventListener('submit', async (e)=>{
       e.preventDefault();
 
+      // Honeypot
       const hp = document.getElementById('website');
       if(hp && hp.value){ showError('Có lỗi xảy ra.'); return; }
 
+      // Collect
       const name = form.name.value.trim();
       const phone = form.phone.value.trim();
       const email = (form.email.value||'').trim();
       const className = form.class.value;
       const graduationYear = form.graduationYear.value;
       const message = (form.message.value||'').trim();
-      const sessions = getSelectedSessions();
+      const sessions = getSelectedSessions(); // ['ceremony','festival','sports']
 
+      // Validate
       const emailOk = /[^\s@]+@[^\s@]+\.[^\s@]+/.test(email);
       const phoneOk = (/[0-9]{7,15}/).test(phone.replace(/[^0-9]/g,''));
-      if(!name||!phone||!email||!className||!graduationYear){ showError('Vui lòng điền đầy đủ các trường có dấu *'); return; }
-      if (!sessions.length){ showError('Vui lòng chọn ít nhất một mục trong "Tham gia".'); return; }
+      if(!name||!phone||!email||!className||!graduationYear){
+        showError('Vui lòng điền đầy đủ các trường có dấu *'); return;
+      }
+      if (!sessions.length){
+        showError('Vui lòng chọn ít nhất một mục trong "Tham gia".'); return;
+      }
       if(!emailOk){ showError('Email chưa hợp lệ'); return; }
       if(!phoneOk){ showError('Số điện thoại chưa hợp lệ'); return; }
 
@@ -353,12 +346,9 @@ document.addEventListener('DOMContentLoaded',()=>{
           refreshStats();
 
           if (json.ticketId && json.qrUrl && json.ticketUrl){
-            const qrImage  = document.getElementById('qrImage');
-            const btnDownloadQR = document.getElementById('btnDownloadQR');
-            const ticketLinkText = document.getElementById('ticketLinkText');
-            if (qrImage)       { qrImage.src = json.qrUrl; qrImage.alt = `QR ${json.ticketId}`; }
-            if (btnDownloadQR) { btnDownloadQR.href = json.qrUrl; btnDownloadQR.download = `ticket-${json.ticketId}.png`; }
-            if (ticketLinkText){ ticketLinkText.dataset.url = json.ticketUrl; ticketLinkText.innerHTML = `<a href="${json.ticketUrl}" target="_blank" rel="noopener">${json.ticketUrl}</a>`; }
+            if (qrImage)        { qrImage.src = json.qrUrl; qrImage.alt = `QR ${json.ticketId}`; }
+            if (btnDownloadQR)  { btnDownloadQR.href = json.qrUrl; btnDownloadQR.download = `ticket-${json.ticketId}.png`; }
+            if (ticketLinkText) { ticketLinkText.dataset.url = json.ticketUrl; ticketLinkText.innerHTML = `<a href="${json.ticketUrl}" target="_blank" rel="noopener">${json.ticketUrl}</a>`; }
             qrSaved = false;
             openModal();
           }
