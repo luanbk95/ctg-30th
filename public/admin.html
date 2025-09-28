@@ -1,49 +1,57 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Admin • Registrations</title>
-  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/style.css" />
   <style>
-    .admin-wrap{max-width:1100px;margin:24px auto;padding:16px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-    .admin-actions{display:flex;gap:10px;margin-bottom:12px}
-    .admin-table{width:100%;border-collapse:collapse}
-    .admin-table th,.admin-table td{border:1px solid #e5e7eb;padding:8px;vertical-align:top}
-    .admin-table th{background:#f7f7fb;text-align:left}
-    .muted{color:#777}
-    .btn{padding:8px 12px;border:1px solid #1d5fbf;background:#1d5fbf;color:#fff;border-radius:8px;cursor:pointer}
-    .btn:hover{background:#164d99}
+    body{max-width:1200px;margin:24px auto;padding:0 16px}
+    h1{margin-bottom:12px;color:#0a3c5a}
+    .toolbar{display:flex;gap:8px;align-items:center;margin:12px 0 16px}
+    .btn{padding:8px 12px;border-radius:8px;border:1px solid #1d5fbf;background:#1d5fbf;color:#fff;cursor:pointer}
+    .btn.secondary{background:#fff;color:#1d5fbf}
+    table{width:100%;border-collapse:collapse;background:#fff;border:1px solid #e5e7eb;border-radius:8px;overflow:hidden}
+    thead th{background:#f3f7fd;color:#0a3c5a;text-align:left;padding:10px;border-bottom:1px solid #e5e7eb}
+    tbody td{padding:10px;border-bottom:1px solid #eef2f7;vertical-align:top}
+    tbody tr:hover{background:#fafcff}
+    td.wrap, th.wrap{max-width:420px;white-space:pre-wrap;word-break:break-word}
+    td.mono, th.mono{font-family:ui-monospace, SFMono-Regular, Menlo, Consolas, monospace}
+    .muted{color:#777;font-size:.9rem}
   </style>
 </head>
 <body>
-  <div class="admin-wrap">
-    <h1>Registrations</h1>
-    <div class="admin-actions">
-      <button id="btnExportCsv" class="btn">Export CSV</button>
-      <span class="muted" id="metaCount"></span>
-    </div>
-    <div class="table-wrap">
-      <table class="admin-table" id="tbl">
-        <thead>
-          <tr>
-            <th>#</th>
-            <th>Thời gian</th>
-            <th>Họ và tên</th>
-            <th>Email</th>
-            <th>SĐT</th>
-            <th>Lớp</th>
-            <th>Niên khóa</th>
-            <th>Tham gia</th>
-            <th>IP</th>
-            <th>User-Agent</th>
-            <th>Mã vé</th>
-          </tr>
-        </thead>
-        <tbody id="tbody"></tbody>
-      </table>
-    </div>
+  <h1>Danh sách đăng ký</h1>
+
+  <div class="toolbar">
+    <button id="btnRefresh" class="btn">↻ Tải lại</button>
+    <button id="btnExportCsv" class="btn secondary">⬇︎ Export CSV</button>
+    <span id="count" class="muted"></span>
   </div>
+
+  <div class="muted" style="margin-bottom:8px">
+    Gợi ý: Nhấn vào tiêu đề cột để sắp xếp (tạm thời theo client).
+  </div>
+
+  <table id="tbl">
+    <thead>
+      <tr>
+        <th>Thời gian</th>
+        <th>Họ và tên</th>
+        <th>Điện thoại</th>
+        <th>Email</th>
+        <th>Lớp</th>
+        <th>Niên khóa</th>
+        <th class="wrap">Lời nhắn</th>   <!-- 🆕 -->
+        <th class="mono">IP</th>
+        <th class="wrap">User-Agent</th>
+        <th class="mono">Ticket/ID</th>
+        <th>Tham gia</th>
+      </tr>
+    </thead>
+    <tbody id="tbody"></tbody>
+  </table>
+
   <script src="/js/admin.js"></script>
 </body>
 </html>
