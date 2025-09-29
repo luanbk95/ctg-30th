@@ -18,6 +18,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (!audioControl) return;
     audioControl.textContent = (audio.muted || audio.paused) ? '🔇' : '🔈';
   }
+  syncIcon();
+
+  ['play','pause','volumechange','emptied','stalled','waiting','canplay','canplaythrough','ended']
+    .forEach(evt => audio && audio.addEventListener(evt, syncIcon));
 
   // Get src when needed
   function attachSrcIfNeeded(){
@@ -51,8 +55,10 @@ document.addEventListener('DOMContentLoaded',()=>{
     if (userGestureDone) return;
     userGestureDone = true;
     userMuted = false;
+    syncIcon();
     await ensureLoadAndPlay();
   }
+
 
   // Auto resume when fully buffered
   audio.addEventListener('canplay', () => {
