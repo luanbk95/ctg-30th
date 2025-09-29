@@ -4,109 +4,55 @@ document.addEventListener('DOMContentLoaded',()=>{
   const hpEl = document.getElementById('hpToken');
   if (hpEl) hpEl.value = '';
 
-  // ===== Audio logic (click-to-start, robust buffering) =====
+  // ===== Audio logic (click-to-start, mute toggle) =====
   const audio = document.getElementById('backgroundAudio');
   const audioControl = document.getElementById('audioControl');
   const scrollButton = document.getElementById('scrollToForm');
   const quickRsvp = document.getElementById('quickRsvp');
 
-  let started = false;
-  let userMuted = false;        // proactive mute
-  let userGestureDone = false;  // first user interaction done
+  let started = false;   // first click started
+  let userMuted = false; // user explicitly muted
 
   function syncIcon(){
     if (!audioControl) return;
     audioControl.textContent = (audio.muted || audio.paused) ? '🔇' : '🔈';
   }
-  syncIcon();
-
-  ['play','pause','volumechange','emptied','stalled','waiting','canplay','canplaythrough','ended']
-    .forEach(evt => audio && audio.addEventListener(evt, syncIcon));
-
-  // Get src when needed
-  function attachSrcIfNeeded(){
-    if (!audio.getAttribute('src')) {
-      const realSrc = audio.getAttribute('data-src');
-      if (realSrc) {
-        audio.setAttribute('src', realSrc);
-        audio.load(); // reload source
-      }
-    }
-  }
-
-  // Play with sufficient data buffering
-  async function ensureLoadAndPlay(){
+  async function playLoud(){
     try{
-      attachSrcIfNeeded();
-      audio.preload = 'auto';           // allow sufficient buffering after user interaction
-      if (audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA){
-        audio.load();
+      // Lazy-attach the src on first play to avoid network before user gesture
+      if (!audio.getAttribute('src')) {
+        const realSrc = audio.getAttribute('data-src');
+        if (realSrc) {
+          audio.setAttribute('src', realSrc);
+          // Ensure it re-reads source without starting a download until play()
+          audio.load();
+        }
       }
+  
       audio.muted = false;
       audio.volume = 1.0;
-      await audio.play().catch(()=>{});
+  
+      if (audio.paused){
+        await audio.play();   // user gesture already occurred -> allowed
+      }
       started = true;
-    }catch(_){}
+    } catch (_){}
     syncIcon();
   }
-
-  // Call for first user interaction
-  async function firstUserGesture(){
-    if (userGestureDone) return;
-    userGestureDone = true;
-    userMuted = false;
-    syncIcon();
-    await ensureLoadAndPlay();
+  function firstClickPlay(){
+    if(!started && !userMuted){ playLoud(); }
   }
-
-
-  // Auto resume when fully buffered
-  audio.addEventListener('canplay', () => {
-    if (!userMuted && started && audio.paused){
-      audio.play().catch(()=>{});
-    }
-  });
-  audio.addEventListener('canplaythrough', () => {
-    if (!userMuted && audio.paused){
-      audio.play().catch(()=>{});
-    }
-  });
-
-  // if lack of buffer => continue loading and will play again when data is available
-  audio.addEventListener('waiting', () => {
-    audio.preload = 'auto';
-    if (audio.readyState < HTMLMediaElement.HAVE_FUTURE_DATA) audio.load();
-  });
-  audio.addEventListener('stalled', () => {
-    audio.preload = 'auto';
-  });
-
-  // Insurance for loop
-  audio.addEventListener('ended', () => {
-    if (!userMuted) audio.play().catch(()=>{});
-  });
-
-  // Mute/unmute button
+  document.addEventListener('click', firstClickPlay, {capture:true});
+  document.addEventListener('pointerdown', firstClickPlay, {capture:true});
   if (audioControl){
     audioControl.addEventListener('click', async ()=>{
-      if (audio.muted || audio.paused){
-        userMuted = false;
-        await ensureLoadAndPlay();
-      } else {
-        audio.muted = true;
-        userMuted = true;
-        audio.pause();
-        syncIcon();
+      if(audio.muted || audio.paused){
+        userMuted=false; await playLoud();
+      }else{
+        audio.muted=true; userMuted=true; syncIcon();
       }
     });
   }
-
-  // Call for first user interaction
-  ['click','pointerdown','touchstart','keydown'].forEach(evt=>{
-    document.addEventListener(evt, firstUserGesture, { once:true, capture:true });
-  });
-
-  // Scroll to form (keep old behavior)
   function scrollToForm(){
     const sec = document.getElementById('registration-section');
     if (sec) sec.scrollIntoView({behavior:'smooth'});
