@@ -1,6 +1,7 @@
 // File: public/js/script.js
 // *********************************
-// Hi there, for techinical challenge, contact https://www.linkedin.com/in/luan-phan-01a4b71b6/
+// Hi there, for techinical support
+// please contact me at https://www.linkedin.com/in/luan-phan-01a4b71b6/
 // *********************************
 
 document.addEventListener('DOMContentLoaded',()=>{
@@ -127,7 +128,7 @@ document.addEventListener('DOMContentLoaded',()=>{
     }catch(e){ /* silent */ }
   }
   refreshStats();
-  setInterval(refreshStats, 30000);
+  setInterval(refreshStats, 60000);
 
   // ===== Populate graduationYear options (1992-1995 ... 2022-2025) =====
   const gySel = document.getElementById('graduationYear');
